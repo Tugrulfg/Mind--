@@ -2,6 +2,7 @@
 #define C_PLUS_PLUS_MIND_HPP
 
 #include "Tensor.hpp"
+#include "Shape.hpp"
 
 typedef enum{
     boolean,
