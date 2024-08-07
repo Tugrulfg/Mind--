@@ -4,37 +4,59 @@
 #include <vector>
 #include "Shape.hpp"
 #include <stdlib.h>
+#include <ostream>
 #include <iostream>
 #include <cstdlib>
+#include <cstring>
 
-using namespace std;
+namespace cmind{
+    template<typename T>
+    class Tensor{
+        public:
+            // Constructor for Tensor with given shape
+            Tensor(const std::vector<int>& shape);
 
-template<typename T>
-class Tensor{
+            // Constructor for Tensor with given shape
+            Tensor(const Shape& shape);
 
-    public:
-        // Constructor for Tensor with given shape and data type
-        Tensor(const std::vector<int>& shape);
+            // Creates a copy of the tensor
+            Tensor<T> copy()const;
 
-        // Tensor copy contructor
-        Tensor(T* data, const std::vector<int>& shape);
+            // Operator overloading for data access through index. r-value
+            const Tensor<T> operator[](const size_t idx)const;
 
-        // Operator overloading for data access through index. r-value
-        const Tensor<T>& operator[](size_t idx)const;
+            // Operator overloading for data access through index. l-value
+            Tensor<T> operator[](const size_t idx);
 
-        // Operator overloading for data access through index. l-value
-        Tensor<T>& operator[](size_t idx);
+            // Operator overloading for assignment
+            Tensor<T>& operator=(const Tensor<T>& other);
 
-        // Destructor of Tensor
-        ~Tensor();
+            // Operator overloading for assignment
+            Tensor<T>& operator=(const T val);
 
-        const Shape shape;
-    private:
-        T* data;
-        const bool copy; // Checks if the tensor is a copy or original
-        int step = 1; // Step size distance between each index
-};
+            // Destructor of Tensor
+            ~Tensor();
 
+            // Overloading the << operator
+            template <typename U>
+            friend std::ostream& operator<<(std::ostream& os, const Tensor<U>& tensor);
+
+            const Shape shape;
+
+        private:
+            // Tensor copy contructor for accessing slice of a tensor
+            Tensor(T* data, const std::vector<int>& shape);
+
+            // Tensor copy contructor for copying whole tensor
+            Tensor(T* data, const Shape& shape);
+
+            T* data;
+            const bool copied; // Checks if the tensor is a copy or original
+            int size; // Total number of the elements in the tensor
+            int step = 1; // Step size distance between each index
+    };
+
+}
 // Template class member function definitions
 #include "../src/Tensor.cpp"
 
