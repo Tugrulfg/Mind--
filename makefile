@@ -5,6 +5,7 @@ CXXFLAGS = -Wall -Wextra -std=c++11
 clean: 
 	@rm -f obj/*.o
 	@rm -f lib/*.a
+	@rm -f Test
 	
 example: Examples/Test.cpp
 	@g++ -o Test Examples/Test.cpp -L./lib -lcmind

@@ -15,16 +15,18 @@ int main(){
 
 
     std::cout << "------------------------------- Tensor Testing -------------------------------" << std::endl;
-    std::cout << "Tensor1: \n" << tensor2[0] << std::endl;
+    std::cout << "Tensor1: \n" << tensor2 << std::endl;
 
     std::cout << "Assign1" << std::endl;
     for(int i=0; i<10; i++)
         tensor1[i] = i;
 
-    tensor2[0] = tensor1;
+    tensor2[0] += tensor1;
+    Tensor<float> tensor3(tensor2.copy());
+
     std::cout << "Assign2" << std::endl;
 
-    std::cout << "Tensor2: \n" << tensor1 << std::endl;
+    std::cout << "Tensor2: \n" << tensor3 << std::endl;
 
 
     return 0;

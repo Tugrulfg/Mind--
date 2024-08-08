@@ -22,6 +22,9 @@ namespace cmind{
             // Creates a copy of the tensor
             Tensor<T> copy()const;
 
+            // Returns the shape of the tensor
+            Shape shape()const;
+
             // Operator overloading for data access through index. r-value
             const Tensor<T> operator[](const size_t idx)const;
 
@@ -30,9 +33,40 @@ namespace cmind{
 
             // Operator overloading for assignment
             Tensor<T>& operator=(const Tensor<T>& other);
-
-            // Operator overloading for assignment
             Tensor<T>& operator=(const T val);
+
+            // Operator overloading for addition
+            Tensor<T> operator+(const Tensor<T>& other) const;
+            Tensor<T> operator+(const T val) const;
+            Tensor<T>& operator+=(const Tensor<T>& other);
+            Tensor<T>& operator+=(const T val);
+
+            // Operator overloading for subtraction
+            Tensor<T> operator-(const Tensor<T>& other) const;
+            Tensor<T> operator-(const T val) const;
+            Tensor<T>& operator-=(const Tensor<T>& other);
+            Tensor<T>& operator-=(const T val);
+
+            // Operator overloading for multiplication
+            Tensor<T> operator*(const Tensor<T>& other) const;
+            Tensor<T> operator*(const T val) const;
+            Tensor<T>& operator*=(const Tensor<T>& other);
+            Tensor<T>& operator*=(const T val);
+
+            // Operator overloading for division
+            Tensor<T> operator/(const Tensor<T>& other) const;
+            Tensor<T> operator/(const T val) const;
+            Tensor<T>& operator/=(const Tensor<T>& other);
+            Tensor<T>& operator/=(const T val);
+
+            // Utility functions
+            Tensor<T>& reshape(const std::vector<int>& new_shape);
+            Tensor<T>& transpose();
+            Tensor<T>& slice(const std::vector<int>& start, const std::vector<int>& end) const;
+            T sum() const;
+            float mean() const;
+            T min() const;
+            T max() const;
 
             // Destructor of Tensor
             ~Tensor();
@@ -41,19 +75,18 @@ namespace cmind{
             template <typename U>
             friend std::ostream& operator<<(std::ostream& os, const Tensor<U>& tensor);
 
-            const Shape shape;
-
         private:
             // Tensor copy contructor for accessing slice of a tensor
             Tensor(T* data, const std::vector<int>& shape);
 
             // Tensor copy contructor for copying whole tensor
-            Tensor(T* data, const Shape& shape);
+            Tensor(const Tensor<T>& tensor);
 
             T* data;
             const bool copied; // Checks if the tensor is a copy or original
             int size; // Total number of the elements in the tensor
             int step = 1; // Step size distance between each index
+            Shape shape_;
     };
 
 }
