@@ -1,3 +1,4 @@
 lib/
 obj/
+res/
 Examples/*.o

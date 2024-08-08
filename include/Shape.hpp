@@ -11,22 +11,22 @@ namespace cmind{
     class Shape{
         public:
             // Shape object constructor
-            Shape(const std::vector<int>& shape);
+            Shape(const std::vector<size_t>& shape);
 
             // Overloading the [] operator
-            const int& operator[](const size_t idx)const;
+            const size_t& operator[](const size_t idx)const;
 
             // Returns the size of the shape
             size_t size()const;
 
             // Returns the begin iterator
-            std::vector<int>::const_iterator begin()const;
+            std::vector<size_t>::const_iterator begin()const;
 
             // Returns the end iterator
-            std::vector<int>::const_iterator end()const;
+            std::vector<size_t>::const_iterator end()const;
 
             // Returns the data pointer
-            const int* data()const;
+            const size_t* data()const;
 
             // Overloading the == operator
             bool operator==(const Shape& other)const;
@@ -35,7 +35,7 @@ namespace cmind{
             bool operator!=(const Shape& other)const;
         private:
             // Shape vector
-            const std::vector<int> shape;
+            const std::vector<size_t> shape;
     };
 
     // Overloading the << operator

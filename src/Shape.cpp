@@ -2,12 +2,12 @@
 
 namespace cmind{
     // Shape object constructor
-    Shape::Shape(const std::vector<int>& shape): shape(shape){
-        std::cout << "Creating Shape: " << this->shape.size() << std::endl;
+    Shape::Shape(const std::vector<size_t>& shape): shape(shape){
+        // std::cout << "Creating Shape: " << this->shape.size() << std::endl;
     }
 
     // Overloading the [] operator
-    const int& Shape::operator[](const size_t idx)const{
+    const size_t& Shape::operator[](const size_t idx)const{
         if(idx>=this->shape.size()){
             std::cerr << "Index out of bounds" << std::endl;
             abort();
@@ -22,17 +22,17 @@ namespace cmind{
     }
 
     // Returns the begin iterator
-    std::vector<int>::const_iterator Shape::begin()const{ 
+    std::vector<size_t>::const_iterator Shape::begin()const{ 
         return this->shape.begin(); 
     }
 
     // Returns the end iterator
-    std::vector<int>::const_iterator Shape::end()const{ 
+    std::vector<size_t>::const_iterator Shape::end()const{ 
         return this->shape.end(); 
     }
 
     // Returns the data pointer
-    const int* Shape::data()const{ 
+    const size_t* Shape::data()const{ 
         return this->shape.data(); 
     }
 
@@ -48,7 +48,7 @@ namespace cmind{
     // Overloading the << operator
     std::ostream& operator<<(std::ostream& os, const Shape shape){
         os << "[ ";
-        for(const int& dim: shape)
+        for(const size_t& dim: shape)
             os << dim << " ";
         os << "]";
         return os;

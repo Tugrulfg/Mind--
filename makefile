@@ -1,6 +1,6 @@
 # Specify the compiler and flags
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++11
+CXXFLAGS = -Wall -Wextra -std=c++14
 
 clean: 
 	@rm -f obj/*.o
@@ -11,7 +11,8 @@ example: Examples/Test.cpp
 	@g++ -o Test Examples/Test.cpp -L./lib -lcmind
 	@./Test
 
-library: src/Tensor.cpp src/Shape.cpp 
+library: src/Tensor.cpp src/Shape.cpp  src/CSVReader.cpp
 	@$(CXX) $(CXXFLAGS) -c -o obj/Tensor.o  src/Tensor.cpp 
 	@$(CXX) $(CXXFLAGS) -c -o obj/Shape.o  src/Shape.cpp 
-	@ar rcs lib/libcmind.a obj/Tensor.o obj/Shape.o 
+	@$(CXX) $(CXXFLAGS) -c -o obj/CSVReader.o  src/CSVReader.cpp
+	@ar rcs lib/libcmind.a obj/Tensor.o obj/Shape.o obj/CSVReader.o

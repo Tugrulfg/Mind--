@@ -10,17 +10,21 @@
 #include <cstring>
 
 namespace cmind{
+
     template<typename T>
     class Tensor{
         public:
             // Constructor for Tensor with given shape
-            Tensor(const std::vector<int>& shape);
+            Tensor(const std::vector<size_t>& shape);
 
             // Constructor for Tensor with given shape
             Tensor(const Shape& shape);
 
             // Creates a copy of the tensor
             Tensor<T> copy()const;
+
+            // Returns the data pointer
+            T* data();
 
             // Returns the shape of the tensor
             Shape shape()const;
@@ -60,7 +64,7 @@ namespace cmind{
             Tensor<T>& operator/=(const T val);
 
             // Utility functions
-            Tensor<T>& reshape(const std::vector<int>& new_shape);
+            Tensor<T>& reshape(const std::vector<size_t>& new_shape);
             Tensor<T>& transpose();
             Tensor<T>& slice(const std::vector<int>& start, const std::vector<int>& end) const;
             T sum() const;
@@ -77,15 +81,15 @@ namespace cmind{
 
         private:
             // Tensor copy contructor for accessing slice of a tensor
-            Tensor(T* data, const std::vector<int>& shape);
+            Tensor(T* data, const std::vector<size_t>& shape);
 
             // Tensor copy contructor for copying whole tensor
             Tensor(const Tensor<T>& tensor);
 
-            T* data;
+            T* data_;
             const bool copied; // Checks if the tensor is a copy or original
-            int size; // Total number of the elements in the tensor
-            int step = 1; // Step size distance between each index
+            size_t size; // Total number of the elements in the tensor
+            size_t step = 1; // Step size distance between each index
             Shape shape_;
     };
 
