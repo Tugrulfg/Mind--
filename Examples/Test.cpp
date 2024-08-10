@@ -30,11 +30,29 @@ int main(){
     // std::cout << "Tensor2: \n" << tensor3 << std::endl;
 
 
-    // std::cout << "------------------------------- Dataset Testing -------------------------------" << std::endl;
+    std::cout << "------------------------------- CSVReader Testing -------------------------------" << std::endl;
 
-    // CSVReader csv("/home/tugrul/Desktop/Mind++/res/Iris.csv", true);
+    CSVReader csv("/home/tugrul/Desktop/Mind++/res/Iris.csv", true);
+    std::cout << csv.shape() << std::endl;
+    // std::cout << *(Tensor<std::string>*)std::get<0>(csv[5]) << std::endl;
+
+    std::cout << "------------------------------- Dataset Testing -------------------------------" << std::endl;
+
+    Dataset dataset(csv, 5, {0}, 1, false);
+    std::cout << dataset << std::endl;
     // std::cout << csv << std::endl;
-    // std::cout << csv.shape() << std::endl;
+
+    // std::tuple <const void*, dtype> t = csv[0];
+    // if(std::get<1>(t) == dtype::STR)
+    //     std::cout << *(Tensor<char*>*)std::get<0>(t) << std::endl;
+    // else if(std::get<1>(t) == dtype::INT)
+    //     std::cout << *(Tensor<int>*)std::get<0>(t) << std::endl;
+    // else if(std::get<1>(t) == dtype::FLOAT)
+    //     std::cout << *(Tensor<float>*)std::get<0>(t) << std::endl;
+    // else if(std::get<1>(t) == dtype::BOOL)
+    //     std::cout << *(Tensor<bool>*)std::get<0>(t) << std::endl;
+    // else 
+    //     std::cout << "Error" << std::endl;
 
     // std::tuple<const void*, dtype> t = csv.at(149, 1);
     // if(std::get<1>(t) == dtype::STR)
@@ -62,7 +80,7 @@ int main(){
     // else 
     //     std::cout << "Error" << std::endl;
     
-
+    std::cout << "Destructor Calls" << std::endl;
 
     return 0;
 }

@@ -16,6 +16,7 @@ namespace cmind{
 
     // Class for reading csv files and constructing the dataset
     class CSVReader{
+        friend class Dataset;
         public:
             // CSV Dataset constructor
             CSVReader(const std::string& path, bool with_header=false);
@@ -32,6 +33,19 @@ namespace cmind{
             // Sets the data at the given index
             void set(const size_t row, const size_t col, void* data);
 
+            // Accessing a column with column name: r-value 
+            std::tuple<const void*, dtype> operator[](const std::string& col)const;
+
+            // Accessing a column with column name: l-value 
+            std::tuple<void* , dtype> operator[](const std::string& col);
+
+            // Accessing a column with index: r-value 
+            std::tuple<void*, dtype> operator[](const size_t idx)const;
+
+            // Accessing a column with index: l-value 
+            std::tuple<void* , dtype> operator[](const size_t idx);
+            
+            // Destructor
             ~CSVReader();
 
             // Overloading the << operator

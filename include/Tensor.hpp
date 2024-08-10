@@ -20,11 +20,26 @@ namespace cmind{
             // Constructor for Tensor with given shape
             Tensor(const Shape& shape);
 
+            // Tensor copy contructor for copying whole tensor
+            Tensor(const Tensor<T>& tensor);
+
+            // Tensor copy contructor for accessing slice of a tensor
+            Tensor(T* data, const std::vector<size_t>& shape);
+
+            // Default constructor
+            Tensor();
+
             // Creates a copy of the tensor
             Tensor<T> copy()const;
 
             // Returns the data pointer
-            T* data();
+            const T* data()const;
+
+            // Returns the first value store
+            T first()const;
+
+            // Returns the value at the given index
+            T at(const Shape shape)const;
 
             // Returns the shape of the tensor
             Shape shape()const;
@@ -80,11 +95,6 @@ namespace cmind{
             friend std::ostream& operator<<(std::ostream& os, const Tensor<U>& tensor);
 
         private:
-            // Tensor copy contructor for accessing slice of a tensor
-            Tensor(T* data, const std::vector<size_t>& shape);
-
-            // Tensor copy contructor for copying whole tensor
-            Tensor(const Tensor<T>& tensor);
 
             T* data_;
             const bool copied; // Checks if the tensor is a copy or original

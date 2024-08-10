@@ -66,7 +66,7 @@ namespace cmind{
             else if(type == dtype::FLOAT)
                 this->columns.push_back(new Tensor<float>({this->num_row}));
             else if(type == dtype::STR)
-                this->columns.push_back(new Tensor<char*>({this->num_row}));
+                this->columns.push_back(new Tensor<std::string>({this->num_row}));
         }
         file.close();
         file = std::ifstream(path);
@@ -89,10 +89,10 @@ namespace cmind{
                 else if(this->column_types[i] == dtype::FLOAT)
                     ((Tensor<float>*)(this->columns[i]))[0][j] = std::stof(data[i]);
                 else if(this->column_types[i] == dtype::STR)
-                    ((Tensor<const char*>*)(this->columns[i]))[0][j] = data[i].c_str();
+                    ((Tensor<std::string>*)(this->columns[i]))[0][j] = data[i];
             }
-
         }
+        file.close();
     }
 
     // Splits the line into values according to ','
@@ -137,7 +137,7 @@ namespace cmind{
         }
         dtype type = this->column_types[col];
         if(type == dtype::STR){
-            Tensor<char*>& tensor = *(static_cast<Tensor<char*>*>(columns[col]));
+            Tensor<std::string>& tensor = *(static_cast<Tensor<std::string>*>(columns[col]));
             return std::make_tuple(tensor[row].data(), type);
         }
         else if(type == dtype::BOOL){
@@ -163,8 +163,8 @@ namespace cmind{
         }
         dtype type = this->column_types[col];
         if(type == dtype::STR){
-            Tensor<char*>& tensor = *(static_cast<Tensor<char*>*>(columns[col]));
-            tensor[row] = *(static_cast<char**>(data));
+            Tensor<std::string>& tensor = *(static_cast<Tensor<std::string>*>(columns[col]));
+            tensor[row] = *(static_cast<std::string*>(data));
         }
         else if(type == dtype::BOOL){
             Tensor<bool>& tensor = *(static_cast<Tensor<bool>*>(columns[col]));
@@ -180,11 +180,47 @@ namespace cmind{
         }
     }
 
+    // Accessing a column with column name: r-value
+    std::tuple<const void*, dtype> CSVReader::operator[](const std::string& col)const{
+        for(size_t i=0; i<this->num_column; i++)
+            if(this->headers[i] == col)
+                return std::make_tuple(this->columns[i], this->column_types[i]);
+        std::cerr << "Column not found: " << col << std::endl;
+        abort();
+    }
+
+    // Accessing a column with column name: l-value
+    std::tuple<void* , dtype> CSVReader::operator[](const std::string& col){
+        for(size_t i=0; i<this->num_column; i++)
+            if(this->headers[i] == col)
+                return std::make_tuple(this->columns[i], this->column_types[i]);
+        std::cerr << "Column not found: " << col << std::endl;
+        abort();
+    }
+
+    // Accessing a column with index: r-value
+    std::tuple<void*, dtype> CSVReader::operator[](const size_t idx)const{
+        if(idx >= this->num_column){
+            std::cerr << "Column index out of bounds: " << idx << std::endl;
+            abort();
+        }
+        return std::make_tuple(this->columns[idx], this->column_types[idx]);
+    }
+
+    // Accessing a column with index: l-value
+    std::tuple<void* , dtype> CSVReader::operator[](const size_t idx){
+        if(idx >= this->num_column){
+            std::cerr << "Column index out of bounds: " << idx << std::endl;
+            abort();
+        }
+        return std::make_tuple(this->columns[idx], this->column_types[idx]);
+    }
+
     CSVReader::~CSVReader(){
         for(size_t i=0; i<this->num_column; i++){
             std::cout << "Deleting column: " << this->headers[i] << std::endl;
             if(this->column_types[i] == dtype::STR)
-                delete static_cast<Tensor<char*>*>(this->columns[i]);
+                delete static_cast<Tensor<std::string>*>(this->columns[i]);
             else if(this->column_types[i] == dtype::BOOL)
                 delete static_cast<Tensor<bool>*>(this->columns[i]);
             else if(this->column_types[i] == dtype::INT)
@@ -196,7 +232,7 @@ namespace cmind{
 
     // Overloading the << operator
     std::ostream& operator<<(std::ostream& os, const CSVReader& dataset){
-        os << std::endl << "------------------------------------------------------------------------------------" << std::endl;;
+        os << std::endl << "------------------------------------------------------------------------------------" << std::endl;
 
         for(size_t i=0; i<dataset.num_column; i++)
             os << dataset.headers[i] << "\t";
@@ -204,8 +240,9 @@ namespace cmind{
         os << std::endl << "------------------------------------------------------------------------------------" << std::endl;
         for(size_t i=0; i<dataset.num_row; i++){
             for(size_t j=0; j<dataset.num_column; j++){
-                if(dataset.column_types[j] == dtype::STR)
-                    os << ((Tensor<const char *>*)(dataset.columns[j]))[0][i] << "\t";
+                if(dataset.column_types[j] == dtype::STR){
+                    os << ((Tensor<std::string>*)(dataset.columns[j]))[0][i] << "\t";
+                }
                 else if(dataset.column_types[j] == dtype::INT)
                     os << ((Tensor<int>*)(dataset.columns[j]))[0][i] << "\t";
                 else if(dataset.column_types[j] == dtype::FLOAT)

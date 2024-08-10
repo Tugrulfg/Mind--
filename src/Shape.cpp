@@ -6,6 +6,11 @@ namespace cmind{
         // std::cout << "Creating Shape: " << this->shape.size() << std::endl;
     }
 
+    // Shape object constructor
+    // Shape::Shape(): shape({}){
+        
+    // }
+
     // Overloading the [] operator
     const size_t& Shape::operator[](const size_t idx)const{
         if(idx>=this->shape.size()){

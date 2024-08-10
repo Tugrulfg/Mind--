@@ -13,6 +13,9 @@ namespace cmind{
             // Shape object constructor
             Shape(const std::vector<size_t>& shape);
 
+            // Shape object constructor
+            // Shape();
+
             // Overloading the [] operator
             const size_t& operator[](const size_t idx)const;
 

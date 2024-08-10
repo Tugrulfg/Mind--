@@ -52,6 +52,12 @@ namespace cmind{
         // std::cout << "2.Creating Tensor: " << this->shape_ << " " << size << std::endl;
     }
 
+    // Default constructor
+    template<typename T>
+    Tensor<T>::Tensor(): copied(false), shape_({0}){
+
+    }
+
     // Creates a copy of the tensor
     template<typename T>
     Tensor<T> Tensor<T>::copy()const{
@@ -60,8 +66,27 @@ namespace cmind{
 
     // Returns the data pointer
     template<typename T>
-    T* Tensor<T>::data(){
+    const T* Tensor<T>::data()const{
         return this->data_;
+    }
+
+    // Returns the first value store
+    template<typename T>
+    T Tensor<T>::first()const{
+        return this->data_[0];
+    }
+
+    // Returns the value at the given index
+    template<typename T>
+    T Tensor<T>::at(const Shape shape)const{
+        if(shape.size() != this->shape_.size()){
+            std::cerr << "Shape mismatch: " << shape << " " << this->shape_ << std::endl;
+            abort();
+        }
+        Tensor<T> tensor;
+        for(size_t s: shape)
+            tensor = tensor[s];
+        return tensor.first();
     }
 
     // Returns the shape of the tensor
@@ -111,7 +136,7 @@ namespace cmind{
             abort();
         }
 
-        memcpy(this->data_, other.data, this->size*sizeof(T));
+        memcpy(this->data_, other.data_, this->size*sizeof(T));
         return *this;
     }
 

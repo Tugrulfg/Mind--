@@ -13,5 +13,6 @@ namespace cmind{
 #include "Tensor.hpp"
 #include "Shape.hpp"
 #include "CSVReader.hpp"
+#include "Dataset.hpp"
 
 #endif

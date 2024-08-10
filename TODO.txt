@@ -1,0 +1,7 @@
+- Dataset: Returning batch of value
+
+- Loss functions
+
+- Optimizers
+
+- ML Algorithms
