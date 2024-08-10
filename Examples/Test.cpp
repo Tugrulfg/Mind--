@@ -30,16 +30,16 @@ int main(){
     // std::cout << "Tensor2: \n" << tensor3 << std::endl;
 
 
-    std::cout << "------------------------------- CSVReader Testing -------------------------------" << std::endl;
+    // std::cout << "------------------------------- CSVReader Testing -------------------------------" << std::endl;
 
-    CSVReader csv("/home/tugrul/Desktop/Mind++/res/Iris.csv", true);
-    std::cout << csv.shape() << std::endl;
+    // CSVReader csv("/home/tugrul/Desktop/Mind++/res/Salary_Data.csv", true);
+    // std::cout << csv.shape() << std::endl;
     // std::cout << *(Tensor<std::string>*)std::get<0>(csv[5]) << std::endl;
 
-    std::cout << "------------------------------- Dataset Testing -------------------------------" << std::endl;
+    // std::cout << "------------------------------- Dataset Testing -------------------------------" << std::endl;
 
-    Dataset dataset(csv, 5, {0}, 1, false);
-    std::cout << dataset << std::endl;
+    // Dataset dataset(csv, 1, {}, 1, false);
+    // std::cout << dataset << std::endl;
     // std::cout << csv << std::endl;
 
     // std::tuple <const void*, dtype> t = csv[0];
@@ -79,6 +79,26 @@ int main(){
     //     std::cout << *(bool*)std::get<0>(t) << std::endl;
     // else 
     //     std::cout << "Error" << std::endl;
+
+
+    std::cout << "------------------------------- Loss Testing -------------------------------" << std::endl;
+
+    Tensor<float> tensor1({2});
+    Tensor<float> tensor2({2});
+    Tensor<float> tensor3({1});
+    Tensor<float> tensor4({2});
+
+    MSE mse;
+    tensor1[0] = 1.0;
+    tensor1[1] = 2.0;
+    tensor2[0] = 5.0;
+    tensor2[1] = 6.0;
+
+    tensor3 = mse.compute(tensor1, tensor2);
+    tensor4 = mse.gradient(tensor1, tensor2);
+
+    std::cout << "Loss: " << tensor3 << std::endl;
+    std::cout << "Gradients: " << tensor4 << std::endl;
     
     std::cout << "Destructor Calls" << std::endl;
 

@@ -44,6 +44,9 @@ namespace cmind{
             // Returns the shape of the tensor
             Shape shape()const;
 
+            // Returns the size of the tensor
+            size_t size()const;
+
             // Operator overloading for data access through index. r-value
             const Tensor<T> operator[](const size_t idx)const;
 
@@ -98,7 +101,7 @@ namespace cmind{
 
             T* data_;
             const bool copied; // Checks if the tensor is a copy or original
-            size_t size; // Total number of the elements in the tensor
+            size_t size_; // Total number of the elements in the tensor
             size_t step = 1; // Step size distance between each index
             Shape shape_;
     };

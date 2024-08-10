@@ -1,0 +1,27 @@
+#include "../include/Math.hpp"
+
+namespace cmind{
+
+    // Return the absolute value of the given tensors
+    Tensor<float> abs(const Tensor<float>& input1, const Tensor<float>& input2){
+        if(input1.shape() != input2.shape()){
+            std::cout << "abs: Shapes do not match" << std::endl;
+            abort();
+        }
+        Tensor<float> output(input1.shape());
+        const float* in1 = input1.data();
+        const float* in2 = input2.data();
+        for(size_t i=0; i<input1.size(); i++){
+            if(in1[i] < in2[i])
+                output[i] = in2[i]-in1[i];
+            else
+                output[i] = in1[i]-in2[i];
+        }
+        return output;
+    }
+
+
+
+
+
+}

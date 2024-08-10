@@ -11,7 +11,7 @@ namespace cmind{
         for(const size_t& dim: shape)
             size *= dim;
         // std::cout << "Creating Tensor: " << this->shape_ << " " << size << std::endl;
-        this->size = size;
+        this->size_ = size;
         this->step = size / shape[0];
         this->data_ = (T*)malloc(size*sizeof(T));
     }
@@ -24,7 +24,7 @@ namespace cmind{
             size *= dim;
         // std::cout << "Creating Tensor: " << this->shape_ << " " << size << std::endl;
         
-        this->size = size;
+        this->size_ = size;
         this->step = size / shape[0];
         this->data_ = (T*)malloc(size*sizeof(T));
     }
@@ -38,16 +38,16 @@ namespace cmind{
             size *= dim;
         // std::cout << "1.Creating Tensor: " << this->shape_ << " " << size << std::endl;
         
-        this->size = size;
+        this->size_ = size;
         this->step = size / shape[0];
     }
 
     // Tensor copy contructor for copying whole tensor
     template<typename T>
     Tensor<T>::Tensor(const Tensor<T>& tensor): copied(false), shape_(tensor.shape_){
-        this->data_ = (T*) malloc(tensor.size*sizeof(T));
-        std::memcpy(this->data_, tensor.data_, tensor.size*sizeof(T));
-        this->size = tensor.size;
+        this->data_ = (T*) malloc(tensor.size_*sizeof(T));
+        std::memcpy(this->data_, tensor.data_, tensor.size_*sizeof(T));
+        this->size_ = tensor.size_;
         this->step = tensor.step;
         // std::cout << "2.Creating Tensor: " << this->shape_ << " " << size << std::endl;
     }
@@ -95,6 +95,12 @@ namespace cmind{
         return this->shape_;
     }
 
+    // Returns the size of the tensor
+    template<typename T>
+    size_t Tensor<T>::size()const{
+        return this->size_;
+    }
+
     // Operator overloading for data access through index. r-value
     template<typename T>
     const Tensor<T> Tensor<T>::operator[](const size_t idx)const{
@@ -136,7 +142,7 @@ namespace cmind{
             abort();
         }
 
-        memcpy(this->data_, other.data_, this->size*sizeof(T));
+        memcpy(this->data_, other.data_, this->size_*sizeof(T));
         return *this;
     }
 
@@ -144,7 +150,7 @@ namespace cmind{
     template<typename T>
     Tensor<T>& Tensor<T>::operator=(const T val){
         if(this->shape_[0] != 1 && this->shape_.size() != 1){
-            std::cerr << "Assignment: Shape mismatch" << std::endl;
+            std::cerr << "Assignment: Shape mismatch: " << this->shape_ << std::endl;
             abort();
         }
 
@@ -161,8 +167,8 @@ namespace cmind{
         }
         Tensor<T> copy(*this);
 
-        for(size_t i=0; i<this->size; i++)
-            copy.data[i] += other.data[i];
+        for(size_t i=0; i<this->size_; i++)
+            copy.data_[i] += other.data_[i];
 
         return copy;
     }
@@ -171,8 +177,8 @@ namespace cmind{
     template<typename T>
     Tensor<T> Tensor<T>::operator+(const T val) const{
         Tensor<T> copy(*this);
-        for(size_t i=0; i<this->size; i++)
-            copy.data[i] += val;
+        for(size_t i=0; i<this->size_; i++)
+            copy.data_[i] += val;
         return copy;
     }
 
@@ -184,15 +190,15 @@ namespace cmind{
             abort();
         }
 
-        for(size_t i=0; i<this->size; i++)
-            this->data_[i] += other.data[i];
+        for(size_t i=0; i<this->size_; i++)
+            this->data_[i] += other.data_[i];
         return *this;
     }
 
     // Operator overloading for addition
     template<typename T>
     Tensor<T>& Tensor<T>::operator+=(const T val){
-        for(size_t i=0; i<this->size; i++)
+        for(size_t i=0; i<this->size_; i++)
             this->data_[i] += val;
         return *this;
     }
@@ -206,8 +212,8 @@ namespace cmind{
         }
         Tensor<T> copy(*this);
 
-        for(size_t i=0; i<this->size; i++)
-            copy.data[i] -= other.data[i];
+        for(size_t i=0; i<this->size_; i++)
+            copy.data_[i] -= other.data_[i];
 
         return copy;
     }
@@ -216,8 +222,8 @@ namespace cmind{
     template<typename T>
     Tensor<T> Tensor<T>::operator-(const T val) const{
         Tensor<T> copy(*this);
-        for(size_t i=0; i<this->size; i++)
-            copy.data[i] -= val;
+        for(size_t i=0; i<this->size_; i++)
+            copy.data_[i] -= val;
         return copy;
     }
 
@@ -229,15 +235,15 @@ namespace cmind{
             abort();
         }
 
-        for(size_t i=0; i<this->size; i++)
-            this->data_[i] -= other.data[i];
+        for(size_t i=0; i<this->size_; i++)
+            this->data_[i] -= other.data_[i];
         return *this;
     }
 
     // Operator overloading for subtraction
     template<typename T>
     Tensor<T>& Tensor<T>::operator-=(const T val){
-        for(size_t i=0; i<this->size; i++)
+        for(size_t i=0; i<this->size_; i++)
             this->data_[i] -= val;
         return *this;
     }
@@ -251,8 +257,8 @@ namespace cmind{
         }
         Tensor<T> copy(*this);
 
-        for(size_t i=0; i<this->size; i++)
-            copy.data[i] *= other.data[i];
+        for(size_t i=0; i<this->size_; i++)
+            copy.data_[i] *= other.data_[i];
 
         return copy;
     }
@@ -261,8 +267,8 @@ namespace cmind{
     template<typename T>
     Tensor<T> Tensor<T>::operator*(const T val) const{
         Tensor<T> copy(*this);
-        for(size_t i=0; i<this->size; i++)
-            copy.data[i] *= val;
+        for(size_t i=0; i<this->size_; i++)
+            copy.data_[i] *= val;
         return copy;
     }
 
@@ -274,15 +280,15 @@ namespace cmind{
             abort();
         }
 
-        for(size_t i=0; i<this->size; i++)
-            this->data_[i] *= other.data[i];
+        for(size_t i=0; i<this->size_; i++)
+            this->data_[i] *= other.data_[i];
         return *this;
     }
 
     // Operator overloading for multiplication
     template<typename T>
     Tensor<T>& Tensor<T>::operator*=(const T val){
-        for(size_t i=0; i<this->size; i++)
+        for(size_t i=0; i<this->size_; i++)
             this->data_[i] *= val;
         return *this;
     }
@@ -296,12 +302,12 @@ namespace cmind{
         }
         Tensor<T> copy(*this);
 
-        for(size_t i=0; i<this->size; i++){
-            if(other.data[i] == 0){
+        for(size_t i=0; i<this->size_; i++){
+            if(other.data_[i] == 0){
                 std::cerr << "Division by zero" << std::endl;
                 abort();
             }
-            copy.data[i] /= other.data[i];
+            copy.data_[i] /= other.data_[i];
         }
 
         return copy;
@@ -315,8 +321,8 @@ namespace cmind{
             abort();
         }
         Tensor<T> copy(*this);
-        for(size_t i=0; i<this->size; i++)
-            copy.data[i] /= val;
+        for(size_t i=0; i<this->size_; i++)
+            copy.data_[i] /= val;
         return copy;
     }
 
@@ -328,12 +334,12 @@ namespace cmind{
             abort();
         }
 
-        for(size_t i=0; i<this->size; i++){
-            if(other.data[i] == 0){
+        for(size_t i=0; i<this->size_; i++){
+            if(other.data_[i] == 0){
                 std::cerr << "Division by zero" << std::endl;
                 abort();
             }
-            this->data_[i] /= other.data[i];
+            this->data_[i] /= other.data_[i];
         }
         return *this;
     }
@@ -345,7 +351,7 @@ namespace cmind{
             std::cerr << "Division by zero" << std::endl;
             abort();
         }
-        for(size_t i=0; i<this->size; i++)
+        for(size_t i=0; i<this->size_; i++)
             this->data_[i] /= val;
         return *this;
     }
@@ -356,7 +362,7 @@ namespace cmind{
         size_t size = 1;
         for(const size_t& dim: new_shape)
             size *= dim;
-        if(size != this->size){
+        if(size != this->size_){
             std::cerr << "Reshape: Size mismatch" << std::endl;
             abort();
         }
@@ -383,7 +389,7 @@ namespace cmind{
     template<typename T>
     T Tensor<T>::sum() const{
         T sum = 0;
-        for(size_t i=0; i<this->size; i++)
+        for(size_t i=0; i<this->size_; i++)
             sum += this->data_[i];
         return sum;
     }
@@ -391,14 +397,14 @@ namespace cmind{
     // Mean of the tensor
     template<typename T>
     float Tensor<T>::mean() const{
-        return this->sum() / this->size;
+        return this->sum() / this->size_;
     }
 
     // Min of the tensor
     template<typename T>
     T Tensor<T>::min() const{
         T min = this->data_[0];
-        for(size_t i=1; i<this->size; i++)
+        for(size_t i=1; i<this->size_; i++)
             if(this->data_[i] < min)
                 min = this->data_[i];
         return min;
@@ -408,7 +414,7 @@ namespace cmind{
     template<typename T>
     T Tensor<T>::max() const{
         T max = this->data_[0];
-        for(size_t i=1; i<this->size; i++)
+        for(size_t i=1; i<this->size_; i++)
             if(this->data_[i] > max)
                 max = this->data_[i];
         return max;

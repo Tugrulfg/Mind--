@@ -14,5 +14,7 @@ namespace cmind{
 #include "Shape.hpp"
 #include "CSVReader.hpp"
 #include "Dataset.hpp"
+#include "Loss.hpp"
+#include "Math.hpp"
 
 #endif
