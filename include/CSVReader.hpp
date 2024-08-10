@@ -11,6 +11,8 @@
 #include <vector>
 #include <sstream>
 #include <tuple>
+#include <cctype>
+#include <algorithm>
 
 namespace cmind{
 
@@ -59,7 +61,7 @@ namespace cmind{
             static std::vector<std::string> split(const std::string& line);
 
             // Removes the empty spaces from the string
-            static std::string trim(const std::string& str);
+            static void trim(std::string& str);
 
             const bool with_header;   // If the first row contains column names
             std::vector<std::string> headers;

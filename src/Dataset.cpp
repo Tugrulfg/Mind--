@@ -51,7 +51,7 @@ namespace cmind{
                         this->target_data = new Tensor<float>({row_count});
 
                         for(size_t j=0; j<row_count; j++)
-                            (*this->target_data)[j] = this->target_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[5]))[j].data()];
+                            (*this->target_data)[j] = this->target_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
                     }
                 }
                 else if(csv.column_types[i] == dtype::INT)
@@ -64,7 +64,7 @@ namespace cmind{
                     std::unordered_map<std::string, float> string_mapping = string_to_float(csv.columns[i], row_count);
                     Tensor<float>* tensor = new Tensor<float>({row_count});
                     for(size_t j=0; j<row_count; j++)
-                        tensor[j] = string_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[5]))[j].data()];
+                        tensor[j] = string_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
                     this->source_data.push_back(tensor);
                 }
 

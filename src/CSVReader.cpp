@@ -102,7 +102,7 @@ namespace cmind{
         std::string token;
 
         while (std::getline(ss, token, ',')) {
-            token = trim(token);
+            trim(token);
             if(!token.empty())
                 values.push_back(token);
         }
@@ -111,12 +111,8 @@ namespace cmind{
     }
 
     // Removes the empty spaces from the string
-    std::string CSVReader::trim(const std::string& str){
-        size_t first = str.find_first_not_of(' ');
-        if (std::string::npos == first)
-            return std::string();
-        size_t last = str.find_last_not_of(' ');
-        return str.substr(first, (last - first + 1));
+    void CSVReader::trim(std::string& str){
+          str.erase(std::remove_if(str.begin(), str.end(), ::isspace), str.end());
     }
 
     // Returns the column names
