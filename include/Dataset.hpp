@@ -39,6 +39,12 @@ namespace cmind{
             // Returns the targets
             const Tensor<float>& targets()const;
 
+            // Gets the next batch of data
+            std::vector<Tensor<float>> next_data();
+
+            // Gets the next batch of targets
+            std::vector<Tensor<float>> next_targets();
+
             // Destructor
             ~Dataset();
 
@@ -62,6 +68,8 @@ namespace cmind{
             const Shape shape_;
             const size_t batch_size;
             std::unordered_map<std::string, float> target_mapping;     // If the target column is string, store the mapping
+            size_t data_row_index = 0;   // Current row index for the dataset
+            size_t target_row_index = 0; // Current row index for the target
     };
 }
 

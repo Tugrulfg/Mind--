@@ -121,6 +121,31 @@ namespace cmind{
         return *this->target_data;
     }
 
+    // Gets the next batch of data
+    std::vector<Tensor<float>> Dataset::next_data(){
+        std::vector<Tensor<float>> batch;
+        size_t i;
+        for(i=0; i<this->batch_size; i++){
+            if(this->data_row_index == this->shape_[0])
+                this->data_row_index = 0;
+
+            batch.push_back(this->row(this->data_row_index++));
+        }
+        return batch;
+    }
+
+    // Gets the next batch of targets
+    std::vector<Tensor<float>> Dataset::next_targets(){
+        std::vector<Tensor<float>> batch;
+        Tensor<float> target = this->targets();
+        for(size_t i=0; i<this->batch_size; i++){
+            if(this->target_row_index == this->shape_[0])
+                this->target_row_index = 0;
+            batch.push_back(target[this->target_row_index++]);
+        }
+        return batch;
+    }
+
     // Destructor
     Dataset::~Dataset(){
         for(size_t i=0; i<this->shape_[1]; i++)

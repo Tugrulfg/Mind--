@@ -1,4 +1,4 @@
-- Dataset: Returning batch of value
+- Dataset: Shuffle, preprocess
 
 - Loss functions
 

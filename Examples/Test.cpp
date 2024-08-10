@@ -39,7 +39,7 @@ int main(){
     std::cout << "------------------------------- Dataset Testing -------------------------------" << std::endl;
 
     Dataset dataset(csv, 5, {0}, 1, false);
-    std::cout << dataset << std::endl;
+    std::cout << dataset.next_targets()[0] << std::endl;
     // std::cout << csv << std::endl;
 
     // std::tuple <const void*, dtype> t = csv[0];
