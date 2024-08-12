@@ -2,7 +2,7 @@
 
 namespace cmind{
     // Dataset constructor
-    Dataset::Dataset(const CSVReader& csv, const size_t target, const std::vector<size_t>& ignore, size_t batch, bool shuffle): shape_({csv.shape()[0], csv.shape()[1] - ignore.size() - 1}), batch_size(batch){
+    Dataset::Dataset(const CSVReader& csv, const size_t target, const std::vector<size_t>& ignore, size_t batch, bool shuffle): shape_({csv.shape()[0], csv.shape()[1] - ignore.size() - 1}), batch_size_(batch){
         if(csv.shape()[1] - ignore.size() <= 0){
             std::cout << "Dataset construction: Empty dataset" << std::endl;
             abort();
@@ -20,8 +20,19 @@ namespace cmind{
             }
         }
 
+        this->data_batches = std::vector<Tensor<float>*>(this->num_batches());
+        this->target_batches = std::vector<Tensor<float>*>(this->num_batches());
+        for(size_t i=0; i<this->num_batches(); i++){
+            this->data_batches[i] = new Tensor<float>({this->batch_size_, this->shape_[1]});
+            this->target_batches[i] = new Tensor<float>({this->batch_size_});
+        }
+
+        Tensor<float>* source_data = new Tensor<float>({this->shape_[1], this->shape_[0]});        
+        Tensor<float>* target_data;
+
         bool found;
         if(!shuffle){
+            size_t row = 0;
             for(size_t i=0; i<csv.shape()[1]; i++){
                 found = false;
                 for(size_t idx: ignore){       // Check if the column is ignored or not
@@ -41,35 +52,45 @@ namespace cmind{
                 if(i == target || (target == std::numeric_limits<size_t>::max() && i == this->shape_[1]-1)){                // Target column
                     this->target_header = csv.headers[i];
                     if(csv.column_types[i] == dtype::INT)
-                        this->target_data = new Tensor<float>(to_float(csv.columns[i], dtype::INT, row_count));
+                        target_data = new Tensor<float>(to_float(csv.columns[i], dtype::INT, row_count));
                     else if(csv.column_types[i] == dtype::FLOAT)
-                        this->target_data = new Tensor<float>(to_float(csv.columns[i], dtype::FLOAT, row_count));
+                        target_data = new Tensor<float>(to_float(csv.columns[i], dtype::FLOAT, row_count));
                     else if(csv.column_types[i] == dtype::BOOL)
-                        this->target_data = new Tensor<float>(to_float(csv.columns[i], dtype::BOOL, row_count));
+                        target_data = new Tensor<float>(to_float(csv.columns[i], dtype::BOOL, row_count));
                     else if(csv.column_types[i] == dtype::STR){
                         this->target_mapping = string_to_float(csv.columns[i], row_count);
-                        this->target_data = new Tensor<float>({row_count});
+                        target_data = new Tensor<float>({row_count});
 
                         for(size_t j=0; j<row_count; j++)
-                            (*this->target_data)[j] = this->target_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
+                            (*target_data)[j] = this->target_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
                     }
                 }
                 else if(csv.column_types[i] == dtype::INT)
-                    this->source_data.push_back(new Tensor<float>(to_float(csv.columns[i], dtype::INT, row_count)));
+                    (*source_data)[row++] = to_float(csv.columns[i], dtype::INT, row_count);
                 else if(csv.column_types[i] == dtype::FLOAT)
-                    this->source_data.push_back(new Tensor<float>(to_float(csv.columns[i], dtype::FLOAT, row_count)));
+                    (*source_data)[row++] = to_float(csv.columns[i], dtype::FLOAT, row_count);
                 else if(csv.column_types[i] == dtype::BOOL)
-                    this->source_data.push_back(new Tensor<float>(to_float(csv.columns[i], dtype::BOOL, row_count)));
+                    (*source_data)[row++] = to_float(csv.columns[i], dtype::BOOL, row_count);
                 else if(csv.column_types[i] == dtype::STR){
                     std::unordered_map<std::string, float> string_mapping = string_to_float(csv.columns[i], row_count);
-                    Tensor<float>* tensor = new Tensor<float>({row_count});
+                    Tensor<float> tensor({row_count});
                     for(size_t j=0; j<row_count; j++)
                         tensor[j] = string_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
-                    this->source_data.push_back(tensor);
+                    (*source_data)[row++] = tensor;
                 }
-
             }
         }
+
+        for(size_t i=0; i<this->num_batches(); i++){
+            for(size_t j=0; j<this->batch_size_; j++){
+                (*this->target_batches[i])[j] = (*target_data)[i*this->batch_size_ + j];
+                for(size_t k=0; k<this->shape_[1]; k++)
+                    (*this->data_batches[i])[j][k] = (*source_data)[k][i*this->batch_size_ + j];
+            }
+        }
+
+        delete source_data;
+        delete target_data;
     }
 
     // Return the shape of the dataset
@@ -77,81 +98,38 @@ namespace cmind{
         return this->shape_;
     }
 
-    // Returns the data at the given index
-    float Dataset::at(const size_t row, const size_t col) const{
-        if(row >= this->shape_[0] || col >= this->shape_[1]){
-            std::cerr << "Dataset: Index out of bounds: " << row << " " << col << std::endl;
-            abort();
-        }
-        return (float)(*(this->source_data[col])[row].data());
-    }
-
-    // Returns the target data
-    float Dataset::target_at(const size_t row) const{
-        if(row >= this->shape_[0]){
-            std::cerr << "Dataset: Index out of bounds: " << row << std::endl;
-            abort();
-        }
-        return *(float*)(*target_data)[row].data();
-    }
-
-    // Returns the selected row
-    Tensor<float> Dataset::row(const size_t row) const{
-        if(row >= this->shape_[0]){
-            std::cerr << "Dataset: Index out of bounds: " << row << std::endl;
-            abort();
-        }
-        float* row_data = new float[this->shape_[1]];
-        for(size_t i=0; i<this->shape_[1]; i++)
-            row_data[i] = this->at(row, i);
-        return Tensor<float>(row_data, {this->shape_[1]});
-    }
-
-    // Returns the selected row: Returned array needs to be deallocated by the user
-    const Tensor<float>& Dataset::col(const size_t col) const{
-        if(col >= this->shape_[1]){
-            std::cerr << "Dataset: Index out of bounds: " << col << std::endl;
-            abort();
-        }
-        return *this->source_data[col];
-    }
-
-    // Returns the targets
-    const Tensor<float>& Dataset::targets() const{
-        return *this->target_data;
-    }
-
     // Gets the next batch of data
-    std::vector<Tensor<float>> Dataset::next_data(){
-        std::vector<Tensor<float>> batch;
-        size_t i;
-        for(i=0; i<this->batch_size; i++){
-            if(this->data_row_index == this->shape_[0])
-                this->data_row_index = 0;
-
-            batch.push_back(this->row(this->data_row_index++));
-        }
-        return batch;
+    Tensor<float>* Dataset::next_data(){
+        return this->data_batches[this->data_batch_index++];
     }
 
     // Gets the next batch of targets
-    std::vector<Tensor<float>> Dataset::next_targets(){
-        std::vector<Tensor<float>> batch;
-        Tensor<float> target = this->targets();
-        for(size_t i=0; i<this->batch_size; i++){
-            if(this->target_row_index == this->shape_[0])
-                this->target_row_index = 0;
-            batch.push_back(target[this->target_row_index++]);
-        }
-        return batch;
+    Tensor<float>* Dataset::next_targets(){
+        return this->target_batches[this->target_batch_index++];
+    }
+
+    // Number of batches
+    size_t Dataset::num_batches()const{
+        return this->shape_[0] / this->batch_size_;
+    }
+
+    // Returns the batch size
+    size_t Dataset::batch_size()const{
+        return this->batch_size_;
+    }
+
+    // Sets the indices to beginning
+    void Dataset::reset(){
+        this->data_batch_index = 0;
+        this->target_batch_index = 0;
     }
 
     // Destructor
     Dataset::~Dataset(){
-        for(size_t i=0; i<this->shape_[1]; i++)
-            delete this->source_data[i];
-        
-        delete this->target_data;
+        for(auto data : this->data_batches)
+            delete data;
+        for(auto data : this->target_batches)
+            delete data;
     }
 
     // Check if the ignored indices have duplicate
@@ -205,15 +183,15 @@ namespace cmind{
         
         os << "|\t" << dataset.target_header;
         os << std::endl << "------------------------------------------------------------------------------------" << std::endl;
-        for(size_t i=0; i<dataset.shape_[0]; i++){
-            for(size_t j=0; j<dataset.shape_[1]; j++){
-                os << (*dataset.source_data[j])[i] << "\t";
-            }
-            os << "|\t";
-            os << (*dataset.target_data)[i];
+        // for(size_t i=0; i<dataset.shape_[0]; i++){
+        //     for(size_t j=0; j<dataset.shape_[1]; j++){
+        //         os << (dataset.source_data[j])[i] << "\t";
+        //     }
+        //     os << "|\t";
+        //     os << (*dataset.target_data)[i];
 
-            os << std::endl;
-        }
+        //     os << std::endl;
+        // }
         os << "------------------------------------------------------------------------------------" << std::endl << std::endl;
         return os;
     }

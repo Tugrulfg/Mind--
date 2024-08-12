@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <random>
 
 namespace cmind{
 
@@ -29,6 +30,12 @@ namespace cmind{
             // Default constructor
             Tensor();
 
+            // Fill the tensor with the given value
+            void fill(const T val);
+
+            // Fill randomly the tensor
+            void randomize();
+
             // Creates a copy of the tensor
             Tensor<T> copy()const;
 
@@ -46,6 +53,9 @@ namespace cmind{
 
             // Returns the size of the tensor
             size_t size()const;
+
+            // Returns if the tensor's all the elements are negative
+            bool all_negative()const;
 
             // Operator overloading for data access through index. r-value
             const Tensor<T> operator[](const size_t idx)const;

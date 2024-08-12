@@ -214,7 +214,7 @@ namespace cmind{
 
     CSVReader::~CSVReader(){
         for(size_t i=0; i<this->num_column; i++){
-            std::cout << "Deleting column: " << this->headers[i] << std::endl;
+            // std::cout << "Deleting column: " << this->headers[i] << std::endl;
             if(this->column_types[i] == dtype::STR)
                 delete static_cast<Tensor<std::string>*>(this->columns[i]);
             else if(this->column_types[i] == dtype::BOOL)

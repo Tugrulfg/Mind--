@@ -2,12 +2,29 @@
 #define C_PLUS_PLUS_MIND_HPP
 
 namespace cmind{
+    // Enum type for data types
     enum class dtype{
         BOOL,
         INT,
         FLOAT,
         STR
     }; 
+
+    // Enum type for machine learning algorithms
+    enum class Algorithms{
+        LinearRegression
+    }; 
+
+    // Enum type for optimizers
+    enum class Optimizers{
+        SGD
+    };
+
+    // Enum type for losses
+    enum class Losses{
+        MSE,
+        MAE
+    };
 }
 
 #include "Tensor.hpp"
@@ -16,5 +33,7 @@ namespace cmind{
 #include "Dataset.hpp"
 #include "Loss.hpp"
 #include "Math.hpp"
+#include "Optimizer.hpp"
+#include "Algorithm.hpp"
 
 #endif

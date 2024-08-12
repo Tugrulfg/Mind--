@@ -5,8 +5,8 @@
 
 namespace cmind{
 
-    // Return the absolute value of the given tensors
-    Tensor<float> abs(const Tensor<float>& input1, const Tensor<float>& input2);
+    // Return the absolute difference of the given tensors
+    Tensor<float> abs_dif(const Tensor<float>& input1, const Tensor<float>& input2);
 
 }
 

@@ -30,7 +30,7 @@ int main(){
     // std::cout << "Tensor2: \n" << tensor3 << std::endl;
 
 
-    // std::cout << "------------------------------- CSVReader Testing -------------------------------" << std::endl;
+    // std::cout << "------------------------------- CSVReader Testing -------------------------------" << std::endl
 
     // CSVReader csv("/home/tugrul/Desktop/Mind++/res/Salary_Data.csv", true);
     // std::cout << csv.shape() << std::endl;
@@ -81,25 +81,56 @@ int main(){
     //     std::cout << "Error" << std::endl;
 
 
-    std::cout << "------------------------------- Loss Testing -------------------------------" << std::endl;
+    // std::cout << "------------------------------- Loss Testing -------------------------------" << std::endl;
 
-    Tensor<float> tensor1({2});
-    Tensor<float> tensor2({2});
-    Tensor<float> tensor3({1});
-    Tensor<float> tensor4({2});
+    // Tensor<float> tensor1({1,2});
+    // Tensor<float> tensor2({2});
+    // Tensor<float> tensor3({1});
+    // Tensor<float> tensor4({2});
 
-    MSE mse;
-    tensor1[0] = 1.0;
-    tensor1[1] = 2.0;
-    tensor2[0] = 5.0;
-    tensor2[1] = 6.0;
+    // tensor1[0][0] = 1.0;
+    // tensor1[0][1] = 2.0;
+    // tensor2[0] = 5.0;
+    // tensor2[1] = 6.0;
 
-    tensor3 = mse.compute(tensor1, tensor2);
-    tensor4 = mse.gradient(tensor1, tensor2);
-
-    std::cout << "Loss: " << tensor3 << std::endl;
-    std::cout << "Gradients: " << tensor4 << std::endl;
+    // std::cout << "Model" << std::endl;
+    // LinearRegression lin_reg(2);
+    // std::cout << "Model" << std::endl;
     
+    // tensor3 = lin_reg(tensor1);
+
+    // std::cout << "Tensor3: " << tensor3 << std::endl;
+    // std::cout << "Weights: " << *lin_reg.weights() << std::endl;
+
+    // MSE mse(Algorithms::LinearRegression);
+
+    // SGD sgd(0.001);
+
+    // tensor3 = mse.compute(tensor1, tensor2);
+    // tensor4 = mse.gradient(tensor1, tensor2);
+
+    // std::cout << "Loss: " << tensor3 << std::endl;
+    // std::cout << "Gradients: " << tensor4 << std::endl;
+    
+
+    std::cout << "------------------------------- Training Testing -------------------------------" << std::endl;
+
+    CSVReader csv("/home/tugrul/Desktop/Mind++/res/Salary_Data.csv", true);
+    Dataset dataset(csv, 1, {}, 1, false);
+
+    // CSVReader csv("/home/tugrul/Desktop/Mind++/res/Income.csv", true);
+    // Dataset dataset(csv, 2, {}, 1, false);
+
+    // CSVReader csv("/home/tugrul/Desktop/Mind++/res/Iris.csv", true);
+    // Dataset dataset(csv, 5, {0}, 4, false);
+
+    MAE mae(Algorithms::LinearRegression);
+    MSE mse(Algorithms::LinearRegression);
+    SGD sgd(0.07);
+    LinearRegression lin_reg(dataset.shape()[1]);
+
+    lin_reg.train(dataset, 1000, mae, sgd);
+
     std::cout << "Destructor Calls" << std::endl;
 
     return 0;

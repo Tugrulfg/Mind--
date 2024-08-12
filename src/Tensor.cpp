@@ -58,6 +58,22 @@ namespace cmind{
 
     }
 
+    // Fill the tensor with the given value
+    template<typename T>
+    void Tensor<T>::fill(const T val){
+        std::fill(data_, data_+size_, val);
+    }
+
+    // Fill randomly the tensor
+    template<typename T>
+    void Tensor<T>::randomize(){
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> dis(0, 1);
+        for(size_t i=0; i<size_; i++)
+            this->data_[i] = dis(gen);
+    }
+
     // Creates a copy of the tensor
     template<typename T>
     Tensor<T> Tensor<T>::copy()const{
@@ -101,6 +117,15 @@ namespace cmind{
         return this->size_;
     }
 
+    // Returns if the tensor's all the elements are negative
+    template<typename T>
+    bool Tensor<T>::all_negative()const{
+        for(size_t i=0; i<size_; i++)
+            if(this->data_[i] >= 0)
+                return false;
+        return true;
+    }
+
     // Operator overloading for data access through index. r-value
     template<typename T>
     const Tensor<T> Tensor<T>::operator[](const size_t idx)const{
@@ -138,7 +163,7 @@ namespace cmind{
     template<typename T>
     Tensor<T>& Tensor<T>::operator=(const Tensor<T>& other){
         if(this->shape_ != other.shape_){
-            std::cerr << "Assignment: Shape mismatch" << std::endl;
+            std::cerr << "Assignment: Shape mismatch" << this->shape_ << " " << other.shape_ << std::endl;
             abort();
         }
 
@@ -424,7 +449,7 @@ namespace cmind{
     template<typename T>
     Tensor<T>::~Tensor(){
         if(!this->copied && this->data_ != nullptr){
-            std::cout << "Deleting Tensor: " << this->shape_ << std::endl;
+            // std::cout << "Deleting Tensor: " << this->shape_ << std::endl;
             free(this->data_);
             this->data_ = nullptr;
         }

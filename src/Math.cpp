@@ -2,10 +2,10 @@
 
 namespace cmind{
 
-    // Return the absolute value of the given tensors
-    Tensor<float> abs(const Tensor<float>& input1, const Tensor<float>& input2){
+    // Return the absolute difference of the given tensors
+    Tensor<float> abs_dif(const Tensor<float>& input1, const Tensor<float>& input2){
         if(input1.shape() != input2.shape()){
-            std::cout << "abs: Shapes do not match" << std::endl;
+            std::cout << "abs_dif: Shapes do not match" << std::endl;
             abort();
         }
         Tensor<float> output(input1.shape());
