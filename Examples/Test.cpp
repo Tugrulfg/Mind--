@@ -131,11 +131,14 @@ int main(){
     MSE mse;
     SGDMomentum sgdm(0.001, 0.9);
     SGD sgd(0.001);
+    AdaGrad adagrad(0.1);
+    RMSProp rmsprop(0.001, 0.9);
+    Adam adam(0.001, 0.9, 0.999);
 
     LinearRegression lin_reg(dataset.shape()[1]);
     // lin_reg.load("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
 
-    lin_reg.train(dataset, 2000, mae, sgdm);
+    lin_reg.train(dataset, 2000, mae, adam);
 
     // lin_reg.save("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
 

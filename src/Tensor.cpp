@@ -273,6 +273,15 @@ namespace cmind{
         return *this;
     }
 
+    // Operator overloading for unary minus
+    template<typename T>
+    Tensor<T> Tensor<T>::operator-() const{
+        Tensor<T> copy(*this);
+        for(size_t i=0; i<this->size_; i++)
+            copy.data_[i] = -copy.data_[i];
+        return copy;
+    }
+
 // Operator overloading for multiplication
     template<typename T>
     Tensor<T> Tensor<T>::operator*(const Tensor<T>& other) const{
@@ -485,5 +494,20 @@ namespace cmind{
         return os;
     }
 
+
+    template<typename T>
+    Tensor<T> operator-(T val, const Tensor<T>& tensor){
+        return (-tensor) + val;
+    }
+
+    template<typename T>
+    Tensor<T> operator+(T val, const Tensor<T>& tensor){
+        return tensor + val;
+    }
+
+    template<typename T>
+    Tensor<T> operator*(T val, const Tensor<T>& tensor){
+        return tensor * val;
+    }
 }
 #endif

@@ -78,6 +78,7 @@ namespace cmind{
             Tensor<T> operator-(const T val) const;
             Tensor<T>& operator-=(const Tensor<T>& other);
             Tensor<T>& operator-=(const T val);
+            Tensor<T> operator-() const;
 
             // Operator overloading for multiplication
             Tensor<T> operator*(const Tensor<T>& other) const;
@@ -116,6 +117,15 @@ namespace cmind{
             Shape shape_;
     };
 
+
+    template<typename T>
+    Tensor<T> operator-(T val, const Tensor<T>& tensor);
+
+    template<typename T>
+    Tensor<T> operator+(T val, const Tensor<T>& tensor);
+
+    template<typename T>
+    Tensor<T> operator*(T val, const Tensor<T>& tensor);
 }
 // Template class member function definitions
 #include "../src/Tensor.cpp"

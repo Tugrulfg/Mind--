@@ -1,4 +1,5 @@
 #include "../include/Math.hpp"
+#include <cmath>
 
 namespace cmind{
 
@@ -17,6 +18,17 @@ namespace cmind{
             else
                 output[i] = in1[i]-in2[i];
         }
+        return output;
+    }
+
+    // Square root of the given tensor
+    Tensor<float> sqrt(const Tensor<float>& input){
+        Tensor<float> output(input.shape());
+        const float* in = input.data();
+
+        for(size_t i=0; i<input.size(); i++)
+            output[i] = std::sqrt(in[i]);
+
         return output;
     }
 

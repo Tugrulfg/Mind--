@@ -51,8 +51,57 @@ namespace cmind{
 
         private:
             Tensor<float>* momentum = nullptr;
-            Tensor<float>* velocity = nullptr;
+            Tensor<float>* v = nullptr;
     };
+
+    // AdaGrad Optimizer
+    class AdaGrad: public Optimizer{
+        public:
+            AdaGrad(const float lr);
+
+            void set_weights(Tensor<float>* weights) override;
+        
+            void optimize(const Tensor<float>& grads)const override;
+
+            ~AdaGrad();
+        private:
+            Tensor<float>* v = nullptr;
+    };
+
+    // RMSProp Optimizer
+    class RMSProp: public Optimizer{
+        public:
+            RMSProp(const float lr, const float beta);
+
+            void set_weights(Tensor<float>* weights) override;
+
+            void optimize(const Tensor<float>& grads)const override;
+
+            ~RMSProp();
+        private:
+            Tensor<float>* beta = nullptr;
+            Tensor<float>* v = nullptr;
+    };
+
+    // Adam Optimizer
+    class Adam: public Optimizer{
+        public:
+            Adam(const float lr, const float beta1, const float beta2);
+
+            void set_weights(Tensor<float>* weights) override;
+
+            void optimize(const Tensor<float>& grads)const override;
+
+            ~Adam();
+
+        private:
+            Tensor<float>* beta1 = nullptr;
+            Tensor<float>* beta2 = nullptr;
+            Tensor<float>* m = nullptr;
+            Tensor<float>* v = nullptr;
+    };
+
+
 
 }
 

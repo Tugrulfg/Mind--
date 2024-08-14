@@ -18,7 +18,10 @@ namespace cmind{
     // Enum type for optimizers
     enum class Optimizers{
         SGD,
-        SGDMomentum
+        SGDMomentum, 
+        AdaGrad,
+        RMSProp,
+        Adam
     };
 
     // Enum type for losses
