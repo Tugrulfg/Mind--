@@ -1,7 +1,5 @@
 - Dataset: Shuffle, preprocess
 
-- Algorithms: Testing the results
-
 - Accuracy
 
 - Optimizers

@@ -15,7 +15,7 @@ namespace cmind{
             virtual void optimize(const Tensor<float>& grads)const = 0;
 
             // Set the weights
-            void set_weights(Tensor<float>* weights);
+            virtual void set_weights(Tensor<float>* weights)=0;
         
         protected:
             // Type of the optimizer
@@ -33,7 +33,25 @@ namespace cmind{
         public:
             SGD(const float lr);
 
+            void set_weights(Tensor<float>* weights) override;
+
             void optimize(const Tensor<float>& grads)const override;
+    };
+
+    // Stochastic Gradient Descent(SGD) Optimizer with momentum
+    class SGDMomentum: public Optimizer{
+        public:
+            SGDMomentum(const float lr, const float momentum);
+
+            void optimize(const Tensor<float>& grads)const override;
+
+            void set_weights(Tensor<float>* weights) override;
+
+            ~SGDMomentum();
+
+        private:
+            Tensor<float>* momentum = nullptr;
+            Tensor<float>* velocity = nullptr;
     };
 
 }

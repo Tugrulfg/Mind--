@@ -4,6 +4,7 @@
 #include "Mind++.hpp"
 #include <fstream>
 #include <string>
+#include <chrono>
 
 namespace cmind{
     class Loss;

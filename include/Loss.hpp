@@ -8,7 +8,7 @@ namespace cmind{
     class Loss{
         public:
             // Constructor
-            Loss(const Algorithms alg_type, const Losses loss_type);
+            Loss(const Losses loss_type);
 
             // Calculates the loss value according to the given pred and target
             virtual const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const = 0;
@@ -22,12 +22,15 @@ namespace cmind{
             // Set the inputs
             void set_inputs(Tensor<float>* inputs);
 
+            // Set the algorithm type
+            void set_alg_type(const Algorithms alg_type);
+
             // Destructor
             ~Loss();
         
         protected:
             // Type of the machine learning algorithm
-            const Algorithms alg_type; 
+            Algorithms alg_type; 
 
             // Trainable weights of the algorithm
             size_t weight_count;
@@ -42,7 +45,7 @@ namespace cmind{
     // Mean Squared Error(MSE) Loss implementation
     class MSE: public Loss{
         public:
-            MSE(const Algorithms alg_type);
+            MSE();
             const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const override;
             const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
     };
@@ -50,7 +53,7 @@ namespace cmind{
     // Mean Absolute Error(MAE) Loss implementation
     class MAE: public Loss{
         public:
-            MAE(const Algorithms alg_type);
+            MAE();
             const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const override;
             const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
     };

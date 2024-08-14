@@ -3,7 +3,7 @@
 namespace cmind{
 
     // Constructor
-    Loss::Loss(const Algorithms alg_type, const Losses loss_type): alg_type(alg_type), loss_type(loss_type){
+    Loss::Loss(const Losses loss_type): loss_type(loss_type){
 
     }
 
@@ -17,6 +17,11 @@ namespace cmind{
         this->inputs = inputs;
     }
 
+    // Set the algorithm type
+    void Loss::set_alg_type(const Algorithms alg_type){
+        this->alg_type = alg_type;
+    }
+
     // Destructor
     Loss::~Loss(){
         if(this->inputs != nullptr)
@@ -25,7 +30,7 @@ namespace cmind{
 
 
     // MSE constructor
-    MSE::MSE(const Algorithms alg_type): Loss(alg_type, Losses::MSE){
+    MSE::MSE(): Loss(Losses::MSE){
 
     }
 
@@ -40,6 +45,7 @@ namespace cmind{
             abort();
         }
         Tensor<float> loss({1});
+        loss.fill(0.0);
         for(size_t i=0; i<pred.shape()[0]; i++)
             loss += (pred[i]-target[i])*(pred[i]-target[i]);
         return loss/(2*pred.shape()[0]);
@@ -77,7 +83,7 @@ namespace cmind{
 
 
     // MAE constructor
-    MAE::MAE(const Algorithms alg_type): Loss(alg_type, Losses::MAE){
+    MAE::MAE(): Loss(Losses::MAE){
         
     }
 
@@ -92,8 +98,8 @@ namespace cmind{
             abort();
         }
         Tensor<float> loss({1});
-        float val = abs_dif(pred, target).mean();
-        loss[0] = val;
+        loss.fill(0.0);
+        loss[0] = abs_dif(pred, target).mean();
         return loss;
     }
 

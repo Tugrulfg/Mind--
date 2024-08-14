@@ -28,6 +28,10 @@ namespace cmind{
         std::string line;
 
         std::getline(file, line);
+        if(stoi(line) != (int)this->alg_type){
+            std::cout << "Load weights: Algorithm type does not match" << std::endl;
+            abort();
+        }
         std::getline(file, line);
         std::vector<std::string> weights = split(line);
         this->weights_ = new Tensor<float>({weights.size()});
@@ -80,6 +84,7 @@ namespace cmind{
 
     // Trains the algorithm
     void LinearRegression::train(Dataset& ds, const size_t epochs, Loss& loss_func, Optimizer& opt){
+        loss_func.set_alg_type(this->alg_type);
         loss_func.set_weight_count(this->weights_->shape()[0]);
         opt.set_weights(this->weights_);
         size_t batch_count = ds.num_batches();
@@ -90,6 +95,7 @@ namespace cmind{
         Tensor<float> grad({this->weights_->shape()[0]});
 
         std::cout << "Training" << std::endl;
+        auto start = std::chrono::high_resolution_clock::now();
         for(size_t i=0; i<epochs; i++){
             for(size_t j=0; j<batch_count; j++){
                 data = ds.next_data();
@@ -101,7 +107,6 @@ namespace cmind{
                 loss = loss_func.compute(pred, *target);
 
                 grad = loss_func.gradient(pred, *target);
-
                 opt.optimize(grad);
                 // std::cout << "\rEpoch: " << i+1 << ", Batch: " << j+1 << " Preds: " << pred << " Targets: " << *target << " Loss: " << loss << std::flush;
                 std::cout << "\rEpoch: " << i+1 << ", Batch: " << j+1 << " Loss: " << loss << std::flush;
@@ -109,6 +114,9 @@ namespace cmind{
             std::cout << std::endl;
             ds.reset();
         }
+        auto end = std::chrono::high_resolution_clock::now();
+        auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+        std::cout << "Training time: " << time/1000 << "." << time%1000 << "s" << std::endl << std::endl;
     }
 
     // Predicts for a single input
