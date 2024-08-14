@@ -183,15 +183,14 @@ namespace cmind{
         
         os << "|\t" << dataset.target_header;
         os << std::endl << "------------------------------------------------------------------------------------" << std::endl;
-        // for(size_t i=0; i<dataset.shape_[0]; i++){
-        //     for(size_t j=0; j<dataset.shape_[1]; j++){
-        //         os << (dataset.source_data[j])[i] << "\t";
-        //     }
-        //     os << "|\t";
-        //     os << (*dataset.target_data)[i];
-
-        //     os << std::endl;
-        // }
+        for(size_t i=0; i<dataset.num_batches(); i++){
+            for(size_t j=0; j<dataset.batch_size_; j++){
+                for(size_t k=0; k<dataset.shape_[1]; k++)
+                    os << dataset.data_batches[i][j][k] << "\t";
+                os << "|\t" << dataset.target_batches[i][j];
+                os << std::endl;
+            }
+        }
         os << "------------------------------------------------------------------------------------" << std::endl << std::endl;
         return os;
     }

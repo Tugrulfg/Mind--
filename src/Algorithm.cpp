@@ -11,10 +11,58 @@ namespace cmind{
         return this->weights_;
     }
 
+    // Saves the weights
+    void Algorithm::save(const std::string& filepath)const{
+        std::ofstream file(filepath);
+        file << std::to_string((int)this->alg_type) + "\n";
+
+        for(size_t i=0; i<this->weights_->shape()[0]; i++)
+            file << std::to_string(this->weights_->data()[i]) + " ";
+        
+        file << "\nEOF";
+    }
+
+    // Loads the weights
+    void Algorithm::load(const std::string& filepath){
+        std::ifstream file(filepath);
+        std::string line;
+
+        std::getline(file, line);
+        std::getline(file, line);
+        std::vector<std::string> weights = split(line);
+        this->weights_ = new Tensor<float>({weights.size()});
+        for(size_t i=0; i<weights.size(); i++)
+            (*this->weights_)[i] = std::stof(weights[i]);
+        
+        file.close();
+    }
+
+    // Splits the line into values according to ' '
+    std::vector<std::string> Algorithm::split(const std::string& line){
+        std::vector<std::string> values;
+        std::stringstream ss(line);
+        std::string token;
+
+        while (std::getline(ss, token, ' ')) {
+            token.erase(std::remove_if(token.begin(), token.end(), ::isspace), token.end());    // Trim spaces
+            if(!token.empty())
+                values.push_back(token);
+        }
+
+        return values;
+    }
+
     // LinearRegression constructor
     LinearRegression::LinearRegression(const size_t input_count): Algorithm(Algorithms::LinearRegression){
         this->weights_ = new Tensor<float>({input_count+1});
         this->weights_->randomize();
+    }
+
+    // Load model from file
+    LinearRegression::LinearRegression(const std::string& filepath): Algorithm(Algorithms::LinearRegression){
+        std::ifstream file(filepath);
+
+        this->load(filepath);
     }
 
     // Runs the algorithm and returns the result
@@ -61,6 +109,18 @@ namespace cmind{
             std::cout << std::endl;
             ds.reset();
         }
+    }
+
+    // Predicts for a single input
+    const Tensor<float> LinearRegression::predict(const std::vector<float> input)const{
+        Tensor<float> output({1});
+        output.fill(0.0);
+
+        for(size_t j=0; j<this->weights_->shape()[0]-1; j++)
+            output += (*this->weights_)[j]*input[j];
+        output += (*this->weights_)[this->weights_->shape()[0]-1];
+        
+        return output;
     }
 
     // Destructor

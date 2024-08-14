@@ -1,7 +1,11 @@
 - Dataset: Shuffle, preprocess
 
-- Loss functions
+- Algorithms: Testing the results
+
+- Accuracy
 
 - Optimizers
+
+- Loss functions
 
 - ML Algorithms

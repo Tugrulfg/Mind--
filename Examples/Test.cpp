@@ -115,8 +115,11 @@ int main(){
 
     std::cout << "------------------------------- Training Testing -------------------------------" << std::endl;
 
-    CSVReader csv("/home/tugrul/Desktop/Mind++/res/Salary_Data.csv", true);
+    CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Linear_test.csv", true);
     Dataset dataset(csv, 1, {}, 1, false);
+
+    // std::cout << dataset << std::endl;
+    // abort();
 
     // CSVReader csv("/home/tugrul/Desktop/Mind++/res/Income.csv", true);
     // Dataset dataset(csv, 2, {}, 1, false);
@@ -126,10 +129,23 @@ int main(){
 
     MAE mae(Algorithms::LinearRegression);
     MSE mse(Algorithms::LinearRegression);
-    SGD sgd(0.07);
+    SGD sgd(0.01);
     LinearRegression lin_reg(dataset.shape()[1]);
+    // lin_reg.load("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
 
-    lin_reg.train(dataset, 1000, mae, sgd);
+    lin_reg.train(dataset, 2000, mse, sgd);
+
+    // lin_reg.save_weights("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
+
+    std::cout << "Pred 11.0: " << lin_reg.predict({11.}) << std::endl;
+    std::cout << "Pred 12.0: " << lin_reg.predict({12.}) << std::endl;
+    std::cout << "Pred 13.0: " << lin_reg.predict({13.}) << std::endl;
+    std::cout << "Pred 14.0: " << lin_reg.predict({14.}) << std::endl;
+    std::cout << "Pred 15.0: " << lin_reg.predict({15.}) << std::endl;
+    std::cout << "Pred 16.0: " << lin_reg.predict({16.}) << std::endl;
+    std::cout << "Pred 17.0: " << lin_reg.predict({17.}) << std::endl;
+    std::cout << "Pred 18.0: " << lin_reg.predict({18.}) << std::endl;
+
 
     std::cout << "Destructor Calls" << std::endl;
 
