@@ -29,14 +29,12 @@ namespace cmind{
             const Tensor<float>* weights()const;
 
             // Saves the weights
-            void save(const std::string& filepath)const ;
+            virtual void save(const std::string& filepath)const =0;
 
             // Loads the weights
-            void load(const std::string& filepath);
+            virtual void load(const std::string& filepath)=0;
 
         protected:
-            // Splits the line into values according to ' '
-            static std::vector<std::string> split(const std::string& line);
 
             // Type of the machine learning algorithm
             const Algorithms alg_type;
@@ -45,6 +43,7 @@ namespace cmind{
             Tensor<float>* weights_;
     };
 
+    // Linear regression algorithm implementation
     class LinearRegression: public Algorithm{
         public:
             LinearRegression(const size_t input_count);
@@ -58,9 +57,38 @@ namespace cmind{
 
             const Tensor<float> predict(const std::vector<float> input)const override;
 
+            void save(const std::string& filepath)const override;
+
+            void load(const std::string& filepath)override;
+
             // Destructor
             ~LinearRegression();
     };
+
+    // Polynomial regression algorithm implementation
+    // class PolynomialRegression: public Algorithm{
+    //     public:
+    //         PolynomialRegression(const size_t input_count, const size_t degree);
+
+    //         // Load model from file
+    //         PolynomialRegression(const std::string& filepath);
+
+    //         const Tensor<float> operator()(const Tensor<float>& input)const override;
+
+    //         void train(Dataset& ds, const size_t epochs, Loss& loss_func, Optimizer& opt) override;
+
+    //         const Tensor<float> predict(const std::vector<float> input)const override;
+
+    //          void save(const std::string& filepath)const override;
+
+    //         void load(const std::string& filepath)override;
+
+    //         // Destructor
+    //         ~PolynomialRegression();
+    //     private:
+    //         Tensor<float>* num_var;
+    //         Tensor<float>* degree;
+    // };
 }
 
 

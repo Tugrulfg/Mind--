@@ -18,9 +18,6 @@ namespace cmind{
             // Dataset constructor
             Dataset(const CSVReader& csv, const size_t target = std::numeric_limits<size_t>::max(), const std::vector<size_t>& ignore = {}, size_t batch = 1, bool shuffle = false);
 
-            // Preprocessing
-            void preprocess();
-
             // Returns the shape of the dataset
             Shape shape()const;
 
@@ -39,6 +36,9 @@ namespace cmind{
             // Sets the indices to beginning
             void reset();
 
+            // Preprocessing
+            void preprocess(const size_t poly_feature_degree = 1);
+
             // Destructor
             ~Dataset();
 
@@ -55,12 +55,15 @@ namespace cmind{
             // Convert tensor to float
             static Tensor<float> to_float(void* data, dtype type, size_t size);
 
+            // Generate all polynomial combinations
+            void generate_combinations(const Tensor<size_t>& degree);
+
             std::vector<std::string> headers;
             // std::vector<Tensor<float>*> source_data;
             std::vector<Tensor<float>*> data_batches;
             std::vector<Tensor<float>*> target_batches;
             std::string target_header;
-            const Shape shape_;
+            Shape shape_;
             const size_t batch_size_;
             std::unordered_map<std::string, float> target_mapping;     // If the target column is string, store the mapping
             size_t data_batch_index = 0;   // Current row index for the dataset

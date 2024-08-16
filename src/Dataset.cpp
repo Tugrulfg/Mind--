@@ -1,4 +1,5 @@
 #include "../include/Dataset.hpp"
+#include "../include/Math.hpp"
 
 namespace cmind{
     // Dataset constructor
@@ -124,6 +125,15 @@ namespace cmind{
         this->target_batch_index = 0;
     }
 
+    // Preprocessing
+    void Dataset::preprocess(const size_t poly_feature_degree){
+        if(poly_feature_degree > 1){
+            Tensor<size_t> degree_tensor({1});
+            degree_tensor[0] = poly_feature_degree;
+            this->generate_combinations(degree_tensor);
+        }
+    }
+
     // Destructor
     Dataset::~Dataset(){
         for(auto data : this->data_batches)
@@ -174,11 +184,48 @@ namespace cmind{
         return tensor;
     }
 
+    // Generate all polynomial combinations
+    void Dataset::generate_combinations(const Tensor<size_t>& degree){
+        size_t n = this->shape_[1]; // Number of features
+        size_t m = this->shape_[0]; // Number of samples
+
+        int degree_val = degree.data()[0];
+        size_t num_output_features = 1;
+        
+        Tensor<float>* output;
+        std::vector<std::vector<std::vector<double>>> batch;
+        std::vector<double> example;
+            for (int i = 0; i < this->num_batches(); ++i) {                
+                for(int k=0; k<batch_size_; k++){
+                    for(int j=0; j<n; j++)
+                        example.push_back((*this->data_batches[i])[k][j].data()[0]);
+                    
+                    batch.push_back(createPolynomialFeatures(example, degree_val));
+                    if(num_output_features == 1){
+                        num_output_features = batch[0].size();
+
+                    }
+                    example.clear();
+                }
+    
+                output = new Tensor<float>({this->batch_size_, num_output_features});
+                for(int k=0; k<batch_size_; k++){
+                    for(int j=0; j<num_output_features; j++)
+                        (*output)[k][j] = batch[k][j][0];
+                }
+                delete this->data_batches[i];
+                this->data_batches[i] = output;
+                batch.clear();
+            }
+        
+        this->shape_[1] = num_output_features;
+    }
+
     // Overloading the << operator
     std::ostream& operator<<(std::ostream& os, const Dataset& dataset){
         os << std::endl << "------------------------------------------------------------------------------------" << std::endl;
 
-        for(size_t i=0; i<dataset.shape_[1]; i++)
+        for(size_t i=0; i<dataset.headers.size(); i++)
             os << dataset.headers[i] << "\t";
         
         os << "|\t" << dataset.target_header;
@@ -186,8 +233,8 @@ namespace cmind{
         for(size_t i=0; i<dataset.num_batches(); i++){
             for(size_t j=0; j<dataset.batch_size_; j++){
                 for(size_t k=0; k<dataset.shape_[1]; k++)
-                    os << dataset.data_batches[i][j][k] << "\t";
-                os << "|\t" << dataset.target_batches[i][j];
+                    os << (*dataset.data_batches[i])[j][k] << "\t";
+                os << "|\t" << (*dataset.target_batches[i])[j];
                 os << std::endl;
             }
         }

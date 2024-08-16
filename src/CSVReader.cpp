@@ -18,7 +18,7 @@ namespace cmind{
 
         if(this->with_header){              // Reading the column names if they exists
             std::getline(file, line);
-            this->headers = split(line);
+            this->headers = split(line, ',');
         }
 
         // Reading the data for determining column types and row/column counts
@@ -28,7 +28,7 @@ namespace cmind{
             if(start){
                 start = false;
                 std::vector<std::string> data;
-                data = split(line);
+                data = split(line, ',');
                 this->num_column = data.size();
                 size_t pos;
                 for(size_t i=0; i<this->num_column; i++){
@@ -75,7 +75,7 @@ namespace cmind{
         for(size_t j=0; j<this->num_row; j++){
             std::getline(file, line);
             std::vector<std::string> data;
-            data = split(line);
+            data = split(line, ',');
 
             for(size_t i=0; i<this->num_column; i++){
                 if(this->column_types[i] == dtype::BOOL){
@@ -93,21 +93,6 @@ namespace cmind{
             }
         }
         file.close();
-    }
-
-    // Splits the line into values according to ','
-    std::vector<std::string> CSVReader::split(const std::string& line){
-        std::vector<std::string> values;
-        std::stringstream ss(line);
-        std::string token;
-
-        while (std::getline(ss, token, ',')) {
-            trim(token);
-            if(!token.empty())
-                values.push_back(token);
-        }
-
-        return values;
     }
 
     // Removes the empty spaces from the string

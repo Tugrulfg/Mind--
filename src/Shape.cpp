@@ -21,6 +21,16 @@ namespace cmind{
         return this->shape[idx];
     }
 
+    // Overloading the [] operator
+    size_t& Shape::operator[](const size_t idx){
+        if(idx>=this->shape.size()){
+            std::cerr << "Index out of bounds" << std::endl;
+            abort();
+        }
+            
+        return this->shape[idx];
+    }
+
     // Returns the size of the shape
     size_t Shape::size()const{
         return this->shape.size();

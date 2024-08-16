@@ -19,6 +19,9 @@ namespace cmind{
             // Overloading the [] operator
             const size_t& operator[](const size_t idx)const;
 
+            // Overloading the [] operator
+            size_t& operator[](const size_t idx);
+
             // Returns the size of the shape
             size_t size()const;
 
@@ -38,7 +41,7 @@ namespace cmind{
             bool operator!=(const Shape& other)const;
         private:
             // Shape vector
-            const std::vector<size_t> shape;
+            std::vector<size_t> shape;
     };
 
     // Overloading the << operator

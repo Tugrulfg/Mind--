@@ -57,9 +57,6 @@ namespace cmind{
             // Reads the csv file and constructs the dataset
             void read(const std::string& path);
 
-            // Splits the line into values according to ','
-            static std::vector<std::string> split(const std::string& line);
-
             // Removes the empty spaces from the string
             static void trim(std::string& str);
 

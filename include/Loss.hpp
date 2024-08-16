@@ -57,6 +57,18 @@ namespace cmind{
             const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const override;
             const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
     };
+
+    // Huber Loss implementation
+    class HuberLoss: public Loss{
+        public:
+            HuberLoss(const float delta);
+            const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const override;
+            const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
+
+            ~HuberLoss();
+        private:
+            Tensor<float>* delta = nullptr; 
+    };
 }
 
 #endif

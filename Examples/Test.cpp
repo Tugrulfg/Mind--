@@ -5,7 +5,18 @@
 
 using namespace cmind;
 
-int main(){
+int main() {
+    // std::vector<double> input = {2.0, 3.0};  // Example input
+    // int degree = 2;
+    
+    // std::vector<std::vector<double>> polyFeatures = createPolynomialFeatures(input, degree);
+    
+    // // Display the polynomial features
+    // for (const auto& feature : polyFeatures) {
+    //     std::cout << feature[0] << std::endl;
+    // }
+
+    // abort();
 
     // Shape shape({10,10});
     // Tensor<float> tensor1({10});
@@ -115,34 +126,46 @@ int main(){
 
     std::cout << "------------------------------- Training Testing -------------------------------" << std::endl;
 
-    CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Linear_test.csv", true);
-    Dataset dataset(csv, 1, {}, 4, false);
+    // CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Linear_test.csv", true);
+    // Dataset dataset(csv, 1, {}, 4, false);
+    
+
 
     // std::cout << dataset << std::endl;
     // abort();
 
-    // CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Income.csv", true);
-    // Dataset dataset(csv, 2, {}, 1, false);
+    CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Income.csv", true);
+    Dataset dataset(csv, 2, {}, 4, false);
 
     // CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Iris.csv", true);
     // Dataset dataset(csv, 5, {0}, 4, false);
 
+    // std::cout << dataset << std::endl;
+
+    dataset.preprocess(3);      // Polyfeatures
+
+    // std::cout << dataset << std::endl;
+    // abort();
+
     MAE mae;
     MSE mse;
+    HuberLoss huber(50000.0);
+
     SGDMomentum sgdm(0.001, 0.9);
     SGD sgd(0.001);
     AdaGrad adagrad(0.1);
     RMSProp rmsprop(0.001, 0.9);
-    Adam adam(0.001, 0.9, 0.999);
-
+    Adam adam(0.1, 0.9, 0.999);
+    
     LinearRegression lin_reg(dataset.shape()[1]);
     // lin_reg.load("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
 
-    lin_reg.train(dataset, 2000, mae, adam);
+    lin_reg.train(dataset, 4000, huber, adam);
 
     // lin_reg.save("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
 
-    std::cout << "Pred 11.0: " << lin_reg.predict({11.}) << std::endl;
+    std::vector<double> input = {29.0, 1.0};  // Example input
+    std::cout << "Pred 11.0: " << lin_reg.predict(poly_features(input, 3)) << std::endl;
     // std::cout << "Pred 12.0: " << lin_reg.predict({12.}) << std::endl;
     // std::cout << "Pred 13.0: " << lin_reg.predict({13.}) << std::endl;
     // std::cout << "Pred 14.0: " << lin_reg.predict({14.}) << std::endl;
@@ -152,6 +175,7 @@ int main(){
     // std::cout << "Pred 18.0: " << lin_reg.predict({18.}) << std::endl;
 
 
+    std::cout << "Weights: " << *lin_reg.weights() << std::endl;
     std::cout << "Destructor Calls" << std::endl;
 
     return 0;

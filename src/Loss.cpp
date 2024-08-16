@@ -141,4 +141,91 @@ namespace cmind{
         
         return grads;
     }
+
+
+    // HuberLoss constructor
+    HuberLoss::HuberLoss(const float delta): Loss(Losses::HuberLoss){
+        this->delta = new Tensor<float>({1});
+        this->delta->fill(delta);
+    }
+
+    // Calculates the loss value according to the given pred and target
+    const Tensor<float> HuberLoss::compute(const Tensor<float>& pred, const Tensor<float>& target)const{
+        if(pred.shape() != target.shape()){
+            std::cout << "Huber Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "Huber Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }
+        Tensor<float> loss({1});
+        loss.fill(0.0);
+        Tensor<float> diff({1});
+
+        for(size_t i=0; i<pred.shape()[0]; i++){
+            diff = abs_dif(pred[i], target[i]);
+            if(diff <= this->delta[0])
+                loss[0] += diff*diff/2.0;
+            else
+                loss[0] += this->delta[0]*(diff-this->delta[0]/2.0);
+        }
+        return loss/pred.shape()[0];
+    }
+
+    // Calculates the gradients of the variables
+    const Tensor<float> HuberLoss::gradient(const Tensor<float>& pred, const Tensor<float>& target)const{
+        if(pred.shape() != target.shape()){
+            std::cout << "Huber Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "Huber Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }
+        size_t batch_size = pred.shape()[0];
+        Tensor<float> grads({this->weight_count});
+        grads.fill(0.0);
+        size_t count = this->weight_count;
+        if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
+            count--;
+
+        Tensor<float> diff({1});
+
+        // Calculate gradients  
+        for(size_t i=0; i<batch_size; i++){
+            diff = abs_dif(pred[i], target[i]);
+            if(diff <= this->delta[0]){
+                for(size_t j=0; j<count; j++)
+                    grads[j] += (pred[i]-target[i])*(*this->inputs)[i][j]/batch_size;
+                
+                if(this->alg_type == Algorithms::LinearRegression)
+                    grads[count] += (pred[i]-target[i])/batch_size;
+            }
+            else{
+                if((pred[i] - target[i]).all_negative()){
+                    for(size_t j=0; j<count; j++)
+                        grads[j] -= (*this->inputs)[i][j]/batch_size;
+                    
+                    if(this->alg_type == Algorithms::LinearRegression)
+                        grads[count] -= 1.0/batch_size;
+                }
+                else{
+                    for(size_t j=0; j<count; j++)
+                        grads[j] += (*this->inputs)[i][j]*this->delta[0]/batch_size;
+                    
+                    if(this->alg_type == Algorithms::LinearRegression)
+                        grads[count] += this->delta[0]*1.0/batch_size;
+                }
+            }
+            
+        }
+        return grads;
+    }
+
+    // Destructor
+    HuberLoss::~HuberLoss(){
+        if(this->delta != nullptr)
+            delete this->delta;
+    }
 }

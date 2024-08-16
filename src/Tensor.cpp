@@ -390,6 +390,114 @@ namespace cmind{
         return *this;
     }
 
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator<(const Tensor<T>& other) const{
+        if(this->shape_ != other.shape_ && other.size_ != 1){
+            std::cerr << "Comparison: Shape mismatch" << std::endl;
+            abort();
+        }
+
+        if(this->size_ != other.size_){
+            for(size_t i=0; i<this->size_; i++){
+                if(this->data_[i] >= other.data_[0])
+                    return false;
+            }
+            return true;
+        }
+        for(size_t i=0; i<this->size_; i++){
+            if(this->data_[i] >= other.data_[i])
+                return false;
+        }    
+        return true;
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator<(const T val) const{
+        for(size_t i=0; i<this->size_; i++){
+            if(this->data_[i] >= val)
+                return false;
+        }
+        return true;
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator<=(const Tensor<T>& other) const{
+        return (*this < other) || (*this == other);
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator<=(const T val) const{
+        return (*this < val) || (*this == val);
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator>(const Tensor<T>& other) const{
+        return !(*this <= other);
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator>(const T val) const{
+        return !(*this <= val);
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator>=(const Tensor<T>& other) const{
+        return !(*this < other);
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator>=(const T val) const{
+        return !(*this < val);
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator==(const Tensor<T>& other) const{
+        if(this->shape_ != other.shape_){
+            std::cerr << "Comparison: Shape mismatch" << std::endl;
+            abort();
+        }
+
+        for(size_t i=0; i<this->size_; i++){
+            if(this->data_[i] != other.data_[i])
+                return false;
+        }    
+        return true;
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator==(const T val) const{
+        if(this->size_ != 1){
+            std::cout << "Comparison: Size mismatch" << std::endl;
+            abort();
+        }
+        if(this->data_[0] != val)
+            return false;
+            
+        return true;
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator!=(const Tensor<T>& other) const{
+        return !(*this == other);
+    }
+
+    // Operator overloading for comparison
+    template<typename T>
+    bool Tensor<T>::operator!=(const T val) const{
+        return !(*this == val);
+    }
+
     // Reshaping the tensor
     template<typename T>
     Tensor<T>& Tensor<T>::reshape(const std::vector<size_t>& new_shape){
@@ -417,6 +525,14 @@ namespace cmind{
     Tensor<T>& Tensor<T>::slice(const std::vector<int>& start, const std::vector<int>& end) const{
         // TODO: Implement slice
         return *this;
+    }
+
+    // Flattening the tensor
+    template<typename T>
+    Tensor<T> Tensor<T>::flatten() const{
+        Tensor<T> temp({this->size_});
+        temp.data_ = this->data_;
+        return temp;
     }
 
     // Sum of the tensor

@@ -92,10 +92,26 @@ namespace cmind{
             Tensor<T>& operator/=(const Tensor<T>& other);
             Tensor<T>& operator/=(const T val);
 
+            // Operator overloading for comparison
+            bool operator<(const Tensor<T>& other) const;
+            bool operator<(const T val) const;
+            bool operator<=(const Tensor<T>& other) const;
+            bool operator<=(const T val) const;
+            bool operator>(const Tensor<T>& other) const;
+            bool operator>(const T val) const;
+            bool operator>=(const Tensor<T>& other) const;
+            bool operator>=(const T val) const;
+            bool operator==(const Tensor<T>& other) const;
+            bool operator==(const T val) const;
+            bool operator!=(const Tensor<T>& other) const;
+            bool operator!=(const T val) const;
+
             // Utility functions
             Tensor<T>& reshape(const std::vector<size_t>& new_shape);
             Tensor<T>& transpose();
             Tensor<T>& slice(const std::vector<int>& start, const std::vector<int>& end) const;
+            Tensor<T> flatten()const;
+
             T sum() const;
             float mean() const;
             T min() const;

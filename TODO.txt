@@ -1,9 +1,7 @@
-- Dataset: Shuffle, preprocess
+- Dataset: Shuffle, preprocess(one-hot encoding)
+
+- ML Algorithms
 
 - Accuracy
 
-- Optimizers
-
 - Loss functions
-
-- ML Algorithms

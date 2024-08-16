@@ -27,7 +27,8 @@ namespace cmind{
     // Enum type for losses
     enum class Losses{
         MSE,
-        MAE
+        MAE,
+        HuberLoss
     };
 }
 
@@ -39,5 +40,6 @@ namespace cmind{
 #include "Math.hpp"
 #include "Optimizer.hpp"
 #include "Algorithm.hpp"
+#include "Utils.hpp"
 
 #endif
