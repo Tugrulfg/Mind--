@@ -1,6 +1,4 @@
-- Dataset: Shuffle, preprocess(one-hot encoding)
-
-- ML Algorithms
+- ML Algorithms: Matrix multiplication
 
 - Accuracy
 

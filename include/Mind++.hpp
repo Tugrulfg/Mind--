@@ -41,5 +41,6 @@ namespace cmind{
 #include "Optimizer.hpp"
 #include "Algorithm.hpp"
 #include "Utils.hpp"
+#include "Transforms.hpp"
 
 #endif

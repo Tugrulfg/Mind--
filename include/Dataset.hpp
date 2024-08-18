@@ -3,6 +3,8 @@
 
 #include "Mind++.hpp"
 
+#include <algorithm>  // For std::shuffle
+#include <random>     // For std::default_random_engine
 #include <string>
 #include <vector>
 #include <unordered_set>
@@ -14,9 +16,10 @@ namespace cmind{
     class CSVReader;  // Forward declare CSVReader
 
     class Dataset{
+        friend class Transforms;
         public:
             // Dataset constructor
-            Dataset(const CSVReader& csv, const size_t target = std::numeric_limits<size_t>::max(), const std::vector<size_t>& ignore = {}, size_t batch = 1, bool shuffle = false);
+            Dataset(const CSVReader& csv, const size_t target = std::numeric_limits<size_t>::max(), const std::vector<size_t>& ignore = {}, size_t batch = 1, bool shuffle_data = false);
 
             // Returns the shape of the dataset
             Shape shape()const;
@@ -36,9 +39,6 @@ namespace cmind{
             // Sets the indices to beginning
             void reset();
 
-            // Preprocessing
-            void preprocess(const size_t poly_feature_degree = 1);
-
             // Destructor
             ~Dataset();
 
@@ -55,9 +55,6 @@ namespace cmind{
             // Convert tensor to float
             static Tensor<float> to_float(void* data, dtype type, size_t size);
 
-            // Generate all polynomial combinations
-            void generate_combinations(const Tensor<size_t>& degree);
-
             std::vector<std::string> headers;
             // std::vector<Tensor<float>*> source_data;
             std::vector<Tensor<float>*> data_batches;
@@ -65,6 +62,8 @@ namespace cmind{
             std::string target_header;
             Shape shape_;
             const size_t batch_size_;
+            std::vector<size_t> string_cols;
+            std::vector<std::unordered_map<std::string, float>> source_mapping; // If the source column is string, store the mapping
             std::unordered_map<std::string, float> target_mapping;     // If the target column is string, store the mapping
             size_t data_batch_index = 0;   // Current row index for the dataset
             size_t target_batch_index = 0; // Current row index for the target

@@ -3,7 +3,7 @@
 
 namespace cmind{
     // Dataset constructor
-    Dataset::Dataset(const CSVReader& csv, const size_t target, const std::vector<size_t>& ignore, size_t batch, bool shuffle): shape_({csv.shape()[0], csv.shape()[1] - ignore.size() - 1}), batch_size_(batch){
+    Dataset::Dataset(const CSVReader& csv, const size_t target, const std::vector<size_t>& ignore, size_t batch, bool shuffle_data): shape_({csv.shape()[0], csv.shape()[1] - ignore.size() - 1}), batch_size_(batch){
         if(csv.shape()[1] - ignore.size() <= 0){
             std::cout << "Dataset construction: Empty dataset" << std::endl;
             abort();
@@ -32,61 +32,68 @@ namespace cmind{
         Tensor<float>* target_data;
 
         bool found;
-        if(!shuffle){
-            size_t row = 0;
-            for(size_t i=0; i<csv.shape()[1]; i++){
-                found = false;
-                for(size_t idx: ignore){       // Check if the column is ignored or not
-                    if(i == idx){
-                        found = true;
-                        break;
-                    }
-                }
-                if(found)           
-                    continue;
-                
-                if(i != target)
-                    this->headers.push_back(csv.headers[i]);
-                
-                size_t row_count = csv.shape()[0];
-
-                if(i == target || (target == std::numeric_limits<size_t>::max() && i == this->shape_[1]-1)){                // Target column
-                    this->target_header = csv.headers[i];
-                    if(csv.column_types[i] == dtype::INT)
-                        target_data = new Tensor<float>(to_float(csv.columns[i], dtype::INT, row_count));
-                    else if(csv.column_types[i] == dtype::FLOAT)
-                        target_data = new Tensor<float>(to_float(csv.columns[i], dtype::FLOAT, row_count));
-                    else if(csv.column_types[i] == dtype::BOOL)
-                        target_data = new Tensor<float>(to_float(csv.columns[i], dtype::BOOL, row_count));
-                    else if(csv.column_types[i] == dtype::STR){
-                        this->target_mapping = string_to_float(csv.columns[i], row_count);
-                        target_data = new Tensor<float>({row_count});
-
-                        for(size_t j=0; j<row_count; j++)
-                            (*target_data)[j] = this->target_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
-                    }
-                }
-                else if(csv.column_types[i] == dtype::INT)
-                    (*source_data)[row++] = to_float(csv.columns[i], dtype::INT, row_count);
-                else if(csv.column_types[i] == dtype::FLOAT)
-                    (*source_data)[row++] = to_float(csv.columns[i], dtype::FLOAT, row_count);
-                else if(csv.column_types[i] == dtype::BOOL)
-                    (*source_data)[row++] = to_float(csv.columns[i], dtype::BOOL, row_count);
-                else if(csv.column_types[i] == dtype::STR){
-                    std::unordered_map<std::string, float> string_mapping = string_to_float(csv.columns[i], row_count);
-                    Tensor<float> tensor({row_count});
-                    for(size_t j=0; j<row_count; j++)
-                        tensor[j] = string_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
-                    (*source_data)[row++] = tensor;
+        size_t row = 0;
+        size_t col_idx = 0;
+        for(size_t i=0; i<csv.shape()[1]; i++){
+            found = false;
+            for(size_t idx: ignore){       // Check if the column is ignored or not
+                if(i == idx){
+                    found = true;
+                    break;
                 }
             }
+            if(found)           
+                continue;
+                
+            if(i != target)
+                this->headers.push_back(csv.headers[i]);
+                
+            size_t row_count = csv.shape()[0];
+            if(i == target || (target == std::numeric_limits<size_t>::max() && i == this->shape_[1]-1)){                // Target column
+                this->target_header = csv.headers[i];
+                if(csv.column_types[i] == dtype::INT)
+                    target_data = new Tensor<float>(to_float(csv.columns[i], dtype::INT, row_count));
+                else if(csv.column_types[i] == dtype::FLOAT)
+                    target_data = new Tensor<float>(to_float(csv.columns[i], dtype::FLOAT, row_count));
+                else if(csv.column_types[i] == dtype::BOOL)
+                    target_data = new Tensor<float>(to_float(csv.columns[i], dtype::BOOL, row_count));
+                else if(csv.column_types[i] == dtype::STR){
+                    this->target_mapping = string_to_float(csv.columns[i], row_count);
+                    target_data = new Tensor<float>({row_count});
+
+                    for(size_t j=0; j<row_count; j++)
+                        (*target_data)[j] = this->target_mapping[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
+                }
+                col_idx--;
+            }
+            else if(csv.column_types[i] == dtype::INT)
+                (*source_data)[row++] = to_float(csv.columns[i], dtype::INT, row_count);
+            else if(csv.column_types[i] == dtype::FLOAT)
+                (*source_data)[row++] = to_float(csv.columns[i], dtype::FLOAT, row_count);
+            else if(csv.column_types[i] == dtype::BOOL)
+                (*source_data)[row++] = to_float(csv.columns[i], dtype::BOOL, row_count);
+            else if(csv.column_types[i] == dtype::STR){
+                this->string_cols.push_back(col_idx);
+                this->source_mapping.push_back((std::unordered_map<std::string, float>)string_to_float(csv.columns[i], row_count));
+                Tensor<float> tensor({row_count});
+                for(size_t j=0; j<row_count; j++)
+                    tensor[j] = this->source_mapping.back()[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
+                (*source_data)[row++] = tensor;
+            }
+            col_idx++;
         }
+        
+        std::vector<size_t> indices(this->shape_[0]);
+        for(size_t i=0; i<this->shape_[0]; i++)
+            indices[i] = i;
+        if(shuffle_data)                                 // Shuffle the data indices
+            std::random_shuffle(indices.begin(), indices.end());
 
         for(size_t i=0; i<this->num_batches(); i++){
             for(size_t j=0; j<this->batch_size_; j++){
-                (*this->target_batches[i])[j] = (*target_data)[i*this->batch_size_ + j];
+                (*this->target_batches[i])[j] = (*target_data)[indices[i*this->batch_size_ + j]];
                 for(size_t k=0; k<this->shape_[1]; k++)
-                    (*this->data_batches[i])[j][k] = (*source_data)[k][i*this->batch_size_ + j];
+                    (*this->data_batches[i])[j][k] = (*source_data)[k][indices[i*this->batch_size_ + j]];
             }
         }
 
@@ -123,15 +130,6 @@ namespace cmind{
     void Dataset::reset(){
         this->data_batch_index = 0;
         this->target_batch_index = 0;
-    }
-
-    // Preprocessing
-    void Dataset::preprocess(const size_t poly_feature_degree){
-        if(poly_feature_degree > 1){
-            Tensor<size_t> degree_tensor({1});
-            degree_tensor[0] = poly_feature_degree;
-            this->generate_combinations(degree_tensor);
-        }
     }
 
     // Destructor
@@ -182,43 +180,6 @@ namespace cmind{
                 tensor[i] = (float)((*(Tensor<float>*)data).data()[i]);
         }
         return tensor;
-    }
-
-    // Generate all polynomial combinations
-    void Dataset::generate_combinations(const Tensor<size_t>& degree){
-        size_t n = this->shape_[1]; // Number of features
-        size_t m = this->shape_[0]; // Number of samples
-
-        int degree_val = degree.data()[0];
-        size_t num_output_features = 1;
-        
-        Tensor<float>* output;
-        std::vector<std::vector<std::vector<double>>> batch;
-        std::vector<double> example;
-            for (int i = 0; i < this->num_batches(); ++i) {                
-                for(int k=0; k<batch_size_; k++){
-                    for(int j=0; j<n; j++)
-                        example.push_back((*this->data_batches[i])[k][j].data()[0]);
-                    
-                    batch.push_back(createPolynomialFeatures(example, degree_val));
-                    if(num_output_features == 1){
-                        num_output_features = batch[0].size();
-
-                    }
-                    example.clear();
-                }
-    
-                output = new Tensor<float>({this->batch_size_, num_output_features});
-                for(int k=0; k<batch_size_; k++){
-                    for(int j=0; j<num_output_features; j++)
-                        (*output)[k][j] = batch[k][j][0];
-                }
-                delete this->data_batches[i];
-                this->data_batches[i] = output;
-                batch.clear();
-            }
-        
-        this->shape_[1] = num_output_features;
     }
 
     // Overloading the << operator

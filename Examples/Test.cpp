@@ -138,11 +138,12 @@ int main() {
     Dataset dataset(csv, 2, {}, 4, false);
 
     // CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Iris.csv", true);
-    // Dataset dataset(csv, 5, {0}, 4, false);
+    // Dataset dataset(csv, 4, {0}, 4, false);
 
     // std::cout << dataset << std::endl;
 
-    dataset.preprocess(3);      // Polyfeatures
+    Transforms transforms(false, 3);
+    transforms.fit_transform(dataset);
 
     // std::cout << dataset << std::endl;
     // abort();
@@ -165,7 +166,7 @@ int main() {
     // lin_reg.save("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
 
     std::vector<double> input = {29.0, 1.0};  // Example input
-    std::cout << "Pred 11.0: " << lin_reg.predict(poly_features(input, 3)) << std::endl;
+    std::cout << "Pred 11.0: " << lin_reg.predict(transforms(input)) << std::endl;
     // std::cout << "Pred 12.0: " << lin_reg.predict({12.}) << std::endl;
     // std::cout << "Pred 13.0: " << lin_reg.predict({13.}) << std::endl;
     // std::cout << "Pred 14.0: " << lin_reg.predict({14.}) << std::endl;
