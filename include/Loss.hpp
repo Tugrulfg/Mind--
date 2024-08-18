@@ -25,6 +25,9 @@ namespace cmind{
             // Set the algorithm type
             void set_alg_type(const Algorithms alg_type);
 
+            // Returns the loss function type
+            const Losses get_loss_type()const;
+
             // Destructor
             ~Loss();
         
@@ -68,6 +71,57 @@ namespace cmind{
             ~HuberLoss();
         private:
             Tensor<float>* delta = nullptr; 
+    };
+
+    // Ridge Loss (L2) implementation
+    class RidgeLoss: public Loss{
+        public:
+            RidgeLoss(const float alpha);
+            const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const override;
+            const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
+
+            // Set the weights
+            void set_weights(Tensor<float>* weights);
+
+            ~RidgeLoss();
+        private:
+            Tensor<float>* alpha = nullptr; 
+            Tensor<float>* weights = nullptr;
+    };
+
+    // Lasso Loss (L1) implementation
+    class LassoLoss: public Loss{
+        public:
+            LassoLoss(const float alpha);
+            const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const override;
+            const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
+
+            // Set the weights
+            void set_weights(Tensor<float>* weights);
+
+            ~LassoLoss();
+
+        private:
+            Tensor<float>* alpha = nullptr; 
+            Tensor<float>* weights = nullptr;
+    };
+
+    // ElasticNet Loss implementation
+    class ElasticNetLoss: public Loss{
+        public:
+            ElasticNetLoss(const float alpha, const float l1_ratio);
+            const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const override;
+            const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
+
+            // Set the weights
+            void set_weights(Tensor<float>* weights);
+
+            ~ElasticNetLoss();
+
+        private:
+            Tensor<float>* alpha = nullptr; 
+            Tensor<float>* l1_ratio = nullptr;
+            Tensor<float>* weights = nullptr;
     };
 }
 

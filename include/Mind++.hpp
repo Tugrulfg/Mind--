@@ -28,7 +28,10 @@ namespace cmind{
     enum class Losses{
         MSE,
         MAE,
-        HuberLoss
+        HuberLoss,
+        RidgeLoss,
+        LassoLoss,
+        ElasticNetLoss
     };
 }
 

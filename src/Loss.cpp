@@ -22,6 +22,11 @@ namespace cmind{
         this->alg_type = alg_type;
     }
 
+    // Returns the loss function type
+    const Losses Loss::get_loss_type()const{
+        return this->loss_type;
+    }
+
     // Destructor
     Loss::~Loss(){
         if(this->inputs != nullptr)
@@ -228,4 +233,241 @@ namespace cmind{
         if(this->delta != nullptr)
             delete this->delta;
     }
+
+
+    RidgeLoss::RidgeLoss(const float alpha): Loss(Losses::RidgeLoss){
+        this->alpha = new Tensor<float>({1});
+        this->alpha->fill(alpha);
+    }
+
+    // Calculates the loss value according to the given pred and target
+    const Tensor<float> RidgeLoss::compute(const Tensor<float>& pred, const Tensor<float>& target)const{
+        if(pred.shape() != target.shape()){
+            std::cout << "Ridge Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "Ridge Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }
+        Tensor<float> loss({1});
+        loss.fill(0.0);
+        for(size_t i=0; i<pred.shape()[0]; i++)
+            loss += (pred[i]-target[i])*(pred[i]-target[i]);
+        loss = loss/(2*pred.shape()[0]);
+
+        Tensor<float> penalty({1});
+        penalty.fill(0.0);
+        for(size_t i=0; i<this->weight_count; i++)
+            penalty += power((*this->weights)[i], 2);
+        penalty *= this->alpha[0]/(this->weight_count*2.0);
+        return loss+penalty;
+    }
+
+    // Calculates the gradients of the variables
+    const Tensor<float> RidgeLoss::gradient(const Tensor<float>& pred, const Tensor<float>& target)const{
+        // std::cout << "Pred: " << pred.shape() << "Target: " << target.shape() << "Weights: " << this->weight_count << "Inputs: " << this->inputs->shape() << std::endl;
+        if(pred.shape() != target.shape()){
+            std::cout << "Ridge Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "Ridge Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }        
+        size_t batch_size = pred.shape()[0];
+        Tensor<float> grads({this->weight_count});
+        grads.fill(0.0);
+        size_t count = this->weight_count;
+        if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
+            count--;
+
+        // Calculate gradients
+        for(size_t i=0; i<batch_size; i++){
+            for(size_t j=0; j<count; j++)
+                grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->weights)[j]*this->alpha[0]/this->weight_count);
+            
+            if(this->alg_type == Algorithms::LinearRegression)
+                grads[count] += ((pred[i]-target[i])/batch_size + (*this->weights)[count]*this->alpha[0]/this->weight_count);
+        }
+        
+        return grads;
+    }
+
+    // Set the weights
+    void RidgeLoss::set_weights(Tensor<float>* weights){
+        this->weights = weights;
+    }
+
+    // Destructor
+    RidgeLoss::~RidgeLoss(){
+        if(this->alpha != nullptr)
+            delete this->alpha;
+    }
+
+
+    LassoLoss::LassoLoss(const float alpha): Loss(Losses::LassoLoss){
+        this->alpha = new Tensor<float>({1});
+        this->alpha->fill(alpha);
+    }
+
+    // Calculates the loss value according to the given pred and target
+    const Tensor<float> LassoLoss::compute(const Tensor<float>& pred, const Tensor<float>& target)const{
+        if(pred.shape() != target.shape()){
+            std::cout << "Ridge Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "Ridge Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }
+        Tensor<float> loss({1});
+        loss.fill(0.0);
+        for(size_t i=0; i<pred.shape()[0]; i++)
+            loss += (pred[i]-target[i])*(pred[i]-target[i]);
+        loss = loss/(2*pred.shape()[0]);
+
+        Tensor<float> penalty({1});
+        penalty.fill(0.0);
+        for(size_t i=0; i<this->weight_count; i++)
+            penalty += abs((*this->weights)[i]);
+        penalty *= this->alpha[0]/(this->weight_count*2.0);
+        return loss+penalty;
+    }
+
+    // Calculates the gradients of the variables
+    const Tensor<float> LassoLoss::gradient(const Tensor<float>& pred, const Tensor<float>& target)const{
+        // std::cout << "Pred: " << pred.shape() << "Target: " << target.shape() << "Weights: " << this->weight_count << "Inputs: " << this->inputs->shape() << std::endl;
+        if(pred.shape() != target.shape()){
+            std::cout << "Ridge Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "Ridge Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }        
+        size_t batch_size = pred.shape()[0];
+        Tensor<float> grads({this->weight_count});
+        grads.fill(0.0);
+        size_t count = this->weight_count;
+        if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
+            count--;
+
+        // Calculate gradients
+        for(size_t i=0; i<batch_size; i++){
+            for(size_t j=0; j<count; j++){
+                if((*this->weights)[j] < 0)
+                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/(batch_size*2.0) - (*this->alpha)/(this->weight_count*2.0));
+                else
+                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/(batch_size*2.0) + (*this->alpha)/(this->weight_count*2.0));
+            }
+            
+            if(this->alg_type == Algorithms::LinearRegression){
+                if((*this->weights)[count] < 0)
+                    grads[count] += (pred[i]-target[i])/(batch_size*2.0) - (*this->alpha)/(this->weight_count*2.0);
+                else
+                    grads[count] += (pred[i]-target[i])/(batch_size*2.0) + (*this->alpha)/(this->weight_count*2.0);
+            }
+
+        }
+        
+        return grads;
+    }
+
+    // Set the weights
+    void LassoLoss::set_weights(Tensor<float>* weights){
+        this->weights = weights;
+    }
+
+    // Destructor
+    LassoLoss::~LassoLoss(){
+        if(this->alpha != nullptr)
+            delete this->alpha;
+    }
+
+
+    ElasticNetLoss::ElasticNetLoss(const float alpha, const float l1_ratio): Loss(Losses::ElasticNetLoss){
+        this->alpha = new Tensor<float>({1});
+        this->alpha->fill(alpha);
+
+        this->l1_ratio = new Tensor<float>({1});
+        this->l1_ratio->fill(l1_ratio);
+    }
+
+    // Calculates the loss value according to the given pred and target
+    const Tensor<float> ElasticNetLoss::compute(const Tensor<float>& pred, const Tensor<float>& target)const{
+        if(pred.shape() != target.shape()){
+            std::cout << "Ridge Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "Ridge Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }
+        Tensor<float> loss({1});
+        loss.fill(0.0);
+        for(size_t i=0; i<pred.shape()[0]; i++)
+            loss += (pred[i]-target[i])*(pred[i]-target[i]);
+        loss = loss/(2*pred.shape()[0]);
+
+        Tensor<float> penalty({1});
+        penalty.fill(0.0);
+        for(size_t i=0; i<this->weight_count; i++)
+            penalty += (*this->l1_ratio * abs((*this->weights)[i]) + (-(*this->l1_ratio)+1) * power((*this->weights)[i], 2)/2.0);
+        penalty *= this->alpha[0]/this->weight_count;
+        std::cout << std::endl << "Penalty: " << penalty << std::endl;
+        return loss+penalty;
+    }
+
+    // Calculates the gradients of the variables
+    const Tensor<float> ElasticNetLoss::gradient(const Tensor<float>& pred, const Tensor<float>& target)const{
+        // std::cout << "Pred: " << pred.shape() << "Target: " << target.shape() << "Weights: " << this->weight_count << "Inputs: " << this->inputs->shape() << std::endl;
+        if(pred.shape() != target.shape()){
+            std::cout << "Ridge Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "Ridge Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }        
+        size_t batch_size = pred.shape()[0];
+        Tensor<float> grads({this->weight_count});
+        grads.fill(0.0);
+        size_t count = this->weight_count;
+        if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
+            count--;
+
+        // Calculate gradients
+        for(size_t i=0; i<batch_size; i++){
+            for(size_t j=0; j<count; j++){
+                if((*this->weights)[j] < 0)
+                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->alpha/(this->weight_count*2.0))*(*this->alpha*(-1) + (-*this->alpha+1)*(*this->weights)[j]));
+                else
+                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->alpha/(this->weight_count*2.0))*(*this->alpha*1 + (-*this->alpha+1)*(*this->weights)[j]));
+            }
+            
+            if(this->alg_type == Algorithms::LinearRegression){
+                if((*this->weights)[count] < 0)
+                    grads[count] += ((pred[i]-target[i])/batch_size + (*this->alpha/(this->weight_count*2.0))*(*this->alpha*(-1) + (-*this->alpha+1)*(*this->weights)[count]));
+                else
+                    grads[count] += ((pred[i]-target[i])/batch_size + (*this->alpha/(this->weight_count*2.0))*(*this->alpha*1 + (-*this->alpha+1)*(*this->weights)[count]));
+            }
+        }
+        
+        return grads;
+    }
+
+    // Set the weights
+    void ElasticNetLoss::set_weights(Tensor<float>* weights){
+        this->weights = weights;
+    }
+
+    // Destructor
+    ElasticNetLoss::~ElasticNetLoss(){
+        if(this->alpha != nullptr)
+            delete this->alpha;
+        if(this->l1_ratio != nullptr)
+            delete this->l1_ratio;
+    }
+
 }

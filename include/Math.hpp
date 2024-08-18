@@ -5,6 +5,10 @@
 
 namespace cmind{
 
+    // Return the absolute value of the tensor
+    template<typename T>
+    Tensor<T> abs(const Tensor<T>& input);
+
     // Return the absolute difference of the given tensors
     template<typename T>
     Tensor<T> abs_dif(const Tensor<T>& input1, const Tensor<T>& input2);
@@ -20,6 +24,10 @@ namespace cmind{
     // Power of the given tensor
     template<typename T>
     Tensor<T> power(const Tensor<T>& input1, const Tensor<T>& degree);
+
+    // Power of the given tensor
+    template<typename T>
+    Tensor<T> power(const Tensor<T>& input1, const int degree);
 
 }
 

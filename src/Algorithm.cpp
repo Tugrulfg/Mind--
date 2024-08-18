@@ -39,6 +39,13 @@ namespace cmind{
 
     // Trains the algorithm
     void LinearRegression::train(Dataset& ds, const size_t epochs, Loss& loss_func, Optimizer& opt){
+        if(loss_func.get_loss_type() == Losses::RidgeLoss)
+            ((RidgeLoss&)loss_func).set_weights(this->weights_);
+        else if(loss_func.get_loss_type() == Losses::LassoLoss)
+            ((LassoLoss&)loss_func).set_weights(this->weights_);
+        else if(loss_func.get_loss_type() == Losses::ElasticNetLoss)
+            ((ElasticNetLoss&)loss_func).set_weights(this->weights_);
+
         loss_func.set_alg_type(this->alg_type);
         loss_func.set_weight_count(this->weights_->shape()[0]);
         opt.set_weights(this->weights_);
@@ -120,82 +127,5 @@ namespace cmind{
     LinearRegression::~LinearRegression(){
         delete this->weights_;
     }
-
-
-    // PolynomialRegression constructor
-    // PolynomialRegression::PolynomialRegression(const size_t input_count, const size_t degree): Algorithm(Algorithms::PolynomialRegression){
-    //     this->num_var = new Tensor<float>({1});
-    //     *this->num_var = input_count;
-    //     this->degree = new Tensor<float>({1});
-    //     *this->degree = degree;
-    //     this->weights_ = new Tensor<float>({(factorial(*this->num_var+(*this->degree))/(factorial((*this->degree))*factorial(*this->num_var-(*this->degree))))});
-    //     this->weights_->randomize();
-    // }
-
-    // // Load model from file
-    // PolynomialRegression::PolynomialRegression(const std::string& filepath): Algorithm(Algorithms::PolynomialRegression){
-    //     this->num_var = new Tensor<float>({1});
-    //     this->degree = new Tensor<float>({1});
-    //     this->load(filepath);
-    // }
-
-    // // Runs the algorithm and returns the result
-    // const Tensor<float> PolynomialRegression::operator()(const Tensor<float>& input)const{
-    //     Tensor<float> output({input.shape()[0]});
-    //     output.fill(0.0);
-    // }
-
-    // // Trains the algorithm
-    // void PolynomialRegression::train(Dataset& ds, const size_t epochs, Loss& loss_func, Optimizer& opt){
-
-    // }
-
-    // // Predicts for a single input
-    // const Tensor<float> PolynomialRegression::predict(const std::vector<float> input)const{
-    //     Tensor<float> output({1});
-    //     output.fill(0.0);
-    // }
-
-    //  // Saves the weights
-    // void PolynomialRegression::save(const std::string& filepath)const{
-    //     std::ofstream file(filepath);
-    //     file << std::to_string((int)this->alg_type) + "\n";
-    //     file << std::to_string(this->num_var->data()[0]) + " " + std::to_string(this->degree->data()[0]) + "\n";
-
-    //     for(size_t i=0; i<this->weights_->shape()[0]; i++)
-    //         file << std::to_string(this->weights_->data()[i]) + " ";
-        
-    //     file << "\nEOF";
-    // }
-
-    // // Loads the weights
-    // void PolynomialRegression::load(const std::string& filepath){
-    //     std::ifstream file(filepath);
-    //     std::string line;
-
-    //     std::getline(file, line);
-    //     if(stoi(line) != (int)this->alg_type){
-    //         std::cout << "Load weights: Algorithm type does not match" << std::endl;
-    //         abort();
-    //     }
-    //     std::getline(file, line);
-    //     std::vector<std::string> num_var = split(line, ' ');
-    //     *this->num_var = std::stoi(num_var[0]);
-    //     *this->degree = std::stoi(num_var[1]);
-    //     std::getline(file, line);
-    //     std::vector<std::string> weights = split(line, ' ');
-    //     this->weights_ = new Tensor<float>({weights.size()});
-    //     for(size_t i=0; i<weights.size(); i++)
-    //         (*this->weights_)[i] = std::stof(weights[i]);
-        
-    //     file.close();
-    // }
-
-    // // Destructor
-    // PolynomialRegression::~PolynomialRegression(){
-    //     delete this->num_var;
-    //     delete this->degree;
-    //     delete this->weights_;
-    // }
 }
 

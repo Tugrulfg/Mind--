@@ -151,6 +151,9 @@ int main() {
     MAE mae;
     MSE mse;
     HuberLoss huber(50000.0);
+    RidgeLoss ridge(1.0);
+    LassoLoss lasso(1.0);
+    ElasticNetLoss elastic_net(1.0, 0.5);
 
     SGDMomentum sgdm(0.001, 0.9);
     SGD sgd(0.001);
@@ -161,7 +164,7 @@ int main() {
     LinearRegression lin_reg(dataset.shape()[1]);
     // lin_reg.load("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
 
-    lin_reg.train(dataset, 4000, huber, adam);
+    lin_reg.train(dataset, 4000, elastic_net, adam);
 
     // lin_reg.save("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
 
