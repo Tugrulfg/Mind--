@@ -13,7 +13,7 @@ namespace cmind{
         // std::cout << "Creating Tensor: " << this->shape_ << " " << size << std::endl;
         this->size_ = size;
         this->step = size / shape[0];
-        this->data_ = (T*)malloc(size*sizeof(T));
+        this->data_ = new T[size];
     }
 
     // Constructor for Tensor with given shape
@@ -26,7 +26,7 @@ namespace cmind{
         
         this->size_ = size;
         this->step = size / shape[0];
-        this->data_ = (T*)malloc(size*sizeof(T));
+        this->data_ = new T[size];
     }
 
     // Tensor copy contructor for accessing slice of a tensor
@@ -45,7 +45,7 @@ namespace cmind{
     // Tensor copy contructor for copying whole tensor
     template<typename T>
     Tensor<T>::Tensor(const Tensor<T>& tensor): copied(false), shape_(tensor.shape_){
-        this->data_ = (T*) malloc(tensor.size_*sizeof(T));
+        this->data_ = new T[tensor.size_];
         std::memcpy(this->data_, tensor.data_, tensor.size_*sizeof(T));
         this->size_ = tensor.size_;
         this->step = tensor.step;
@@ -162,7 +162,7 @@ namespace cmind{
     // Operator overloading for assignment
     template<typename T>
     Tensor<T>& Tensor<T>::operator=(const Tensor<T>& other){
-        if(this->shape_ != other.shape_){
+        if(this->size_ != other.size_){
             std::cerr << "Assignment: Shape mismatch" << this->shape_ << " " << other.shape_ << std::endl;
             abort();
         }
@@ -510,7 +510,7 @@ namespace cmind{
         }
         this->shape_ = Shape(new_shape);
         this->step = size / new_shape[0];
-        return copy;
+        return *this;
     }
 
     // Transposing the tensor
@@ -531,7 +531,7 @@ namespace cmind{
     template<typename T>
     Tensor<T> Tensor<T>::flatten() const{
         Tensor<T> temp({this->size_});
-        temp.data_ = this->data_;
+        temp = this->copy();
         return temp;
     }
 
@@ -575,8 +575,7 @@ namespace cmind{
     Tensor<T>::~Tensor(){
         if(!this->copied && this->data_ != nullptr){
             // std::cout << "Deleting Tensor: " << this->shape_ << std::endl;
-            free(this->data_);
-            this->data_ = nullptr;
+            delete [] this->data_;
         }
     }
 

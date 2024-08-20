@@ -15,7 +15,7 @@ namespace cmind{
             void fit_transform(Dataset& dataset);
 
             // Convert the test input to polynomial features
-            std::vector<float> operator()(const std::vector<double>& input)const;
+            std::vector<float> operator()(const std::vector<float>& input)const;
 
             // Destructor
             ~Transforms();
@@ -25,12 +25,12 @@ namespace cmind{
             void generate_combinations(Dataset& dataset)const;
             
             // Helper function to recursively generate polynomial features
-            static void generatePolynomialFeatures(const std::vector<double>& input, int degree, 
+            static void generatePolynomialFeatures(const std::vector<float>& input, int degree, 
                                             int index, std::vector<int> powers, 
                                             std::vector<std::vector<int>>& allPowers);
 
             // Function to generate the polynomial features
-            static std::vector<std::vector<double>> createPolynomialFeatures(const std::vector<double>& input, int degree);
+            static std::vector<std::vector<float>> createPolynomialFeatures(const std::vector<float>& input, int degree);
             
             bool is_poly = false;
             bool one_hot = false;

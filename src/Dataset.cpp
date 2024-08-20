@@ -45,12 +45,9 @@ namespace cmind{
             if(found)           
                 continue;
                 
-            if(i != target)
-                this->headers.push_back(csv.headers[i]);
                 
             size_t row_count = csv.shape()[0];
             if(i == target || (target == std::numeric_limits<size_t>::max() && i == this->shape_[1]-1)){                // Target column
-                this->target_header = csv.headers[i];
                 if(csv.column_types[i] == dtype::INT)
                     target_data = new Tensor<float>(to_float(csv.columns[i], dtype::INT, row_count));
                 else if(csv.column_types[i] == dtype::FLOAT)
@@ -74,7 +71,7 @@ namespace cmind{
                 (*source_data)[row++] = to_float(csv.columns[i], dtype::BOOL, row_count);
             else if(csv.column_types[i] == dtype::STR){
                 this->string_cols.push_back(col_idx);
-                this->source_mapping.push_back((std::unordered_map<std::string, float>)string_to_float(csv.columns[i], row_count));
+                this->source_mapping.push_back(string_to_float(csv.columns[i], row_count));
                 Tensor<float> tensor({row_count});
                 for(size_t j=0; j<row_count; j++)
                     tensor[j] = this->source_mapping.back()[*(*(Tensor<std::string>*)std::get<0>(csv[i]))[j].data()];
@@ -155,17 +152,20 @@ namespace cmind{
     // Creates mapping for converting string data to numeric data
     std::unordered_map<std::string, float> Dataset::string_to_float(const void* data, const size_t size){
         std::unordered_map<std::string, float> mapping;
-        Tensor<std::string> tensor = *(Tensor<std::string>*)data;
+        Tensor<std::string> tensor({size});
+        for(size_t i=0; i<size; i++)
+            tensor[i] = (std::string)((*(Tensor<std::string>*)data).data()[i]);
         int pos = 0;
         for(size_t i=0; i<size; i++){
-            if(mapping.find(*((std::string*)tensor[i].data())) == mapping.end())       // If the value is not in the mapping, add a new value
-                mapping[*((std::string*)tensor[i].data())] = pos++;
+            if(mapping.find(*(tensor[i].data())) == mapping.end())       // If the value is not in the mapping, add a new value
+                mapping[*(tensor[i].data())] = pos++;
         }
+
         return mapping;
     }
 
     // Convert tensor to float
-    Tensor<float> Dataset::to_float(void* data, dtype type, size_t size){
+    Tensor<float> Dataset::to_float(const void* data, dtype type, size_t size){
         Tensor<float> tensor({size});
         if(type == dtype::INT){
             for(size_t i=0; i<size; i++)
@@ -184,12 +184,6 @@ namespace cmind{
 
     // Overloading the << operator
     std::ostream& operator<<(std::ostream& os, const Dataset& dataset){
-        os << std::endl << "------------------------------------------------------------------------------------" << std::endl;
-
-        for(size_t i=0; i<dataset.headers.size(); i++)
-            os << dataset.headers[i] << "\t";
-        
-        os << "|\t" << dataset.target_header;
         os << std::endl << "------------------------------------------------------------------------------------" << std::endl;
         for(size_t i=0; i<dataset.num_batches(); i++){
             for(size_t j=0; j<dataset.batch_size_; j++){

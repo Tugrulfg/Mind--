@@ -27,8 +27,6 @@ namespace cmind{
 
             Tensor<float>* output = nullptr;
 
-            std::cout << dataset.shape_[1] << " " << col_size << this->string_cols.size() << std::endl;
-
             for(int i=0; i<dataset.num_batches(); i++){         // One hot encoding for data batches
                 output = new Tensor<float>({dataset.batch_size_, col_size});
                 output->fill(0.0);
@@ -56,35 +54,36 @@ namespace cmind{
     }
 
     // Convert the test input to polynomial features
-    std::vector<float> Transforms::operator()(const std::vector<double>& input)const{
+    std::vector<float> Transforms::operator()(const std::vector<float>& input)const{
         std::vector<float> output;
-
-        std::vector<double> example;
         size_t count = 0;
+
         if(this->one_hot){
             for(size_t i=0; i<input.size(); i++){
-                if(std::find(this->string_cols.begin(), this->string_cols.end(), input[i]) == this->string_cols.end())
-                    example.push_back(input[i]);
+                if(std::find(this->string_cols.begin(), this->string_cols.end(), i) == this->string_cols.end())
+                    output.push_back(input[i]);
                 else{
                     for(size_t j=0; j<this->source_mapping[count].size(); j++){
                         if(input[i] == j)
-                            example.push_back(1.0);
+                            output.push_back(1.0);
                         else
-                            example.push_back(0.0);
+                            output.push_back(0.0);
                     }
                     count++;
                 }
             }
         }
-        else{
-            example = input;
-        }
+        else
+            output = input;
+        
 
         if (this->is_poly) {
-            std::vector<std::vector<double>> polyFeatures = createPolynomialFeatures(example, this->poly_degree->data()[0]);
+            std::vector<std::vector<float>> polyFeatures = createPolynomialFeatures(output, this->poly_degree->data()[0]);
+            output.clear();
             for (const auto& feature : polyFeatures) 
                 output.push_back(feature[0]);
         }
+            
         return output;
     }
 
@@ -97,8 +96,8 @@ namespace cmind{
         size_t num_output_features = 1;
         
         Tensor<float>* output;
-        std::vector<std::vector<std::vector<double>>> batch;
-        std::vector<double> example;
+        std::vector<std::vector<std::vector<float>>> batch;
+        std::vector<float> example;
             for (int i = 0; i < dataset.num_batches(); ++i) {                
                 for(int k=0; k<dataset.batch_size_; k++){
                     for(int j=0; j<n; j++)
@@ -126,7 +125,7 @@ namespace cmind{
     }
 
     // Helper function to recursively generate polynomial features
-    void Transforms::generatePolynomialFeatures(const std::vector<double>& input, int degree, 
+    void Transforms::generatePolynomialFeatures(const std::vector<float>& input, int degree, 
                                     int index, std::vector<int> powers, 
                                     std::vector<std::vector<int>>& allPowers) {
         if (index == input.size()) {
@@ -146,7 +145,7 @@ namespace cmind{
         }
     }
 
-    std::vector<std::vector<double>> Transforms::createPolynomialFeatures(const std::vector<double>& input, int degree) {
+    std::vector<std::vector<float>> Transforms::createPolynomialFeatures(const std::vector<float>& input, int degree) {
         std::vector<std::vector<int>> allPowers;
         std::vector<int> powers(input.size(), 0);
         
@@ -154,9 +153,9 @@ namespace cmind{
         generatePolynomialFeatures(input, degree, 0, powers, allPowers);
 
         // Now convert these powers into actual polynomial features
-        std::vector<std::vector<double>> polyFeatures;
+        std::vector<std::vector<float>> polyFeatures;
         for (const auto& powerSet : allPowers) {
-            double product = 1.0;
+            float product = 1.0;
             for (int i = 0; i < input.size(); ++i) {
                 product *= std::pow(input[i], powerSet[i]);
             }

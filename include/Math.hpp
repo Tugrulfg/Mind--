@@ -9,10 +9,6 @@ namespace cmind{
     template<typename T>
     Tensor<T> abs(const Tensor<T>& input);
 
-    // Return the absolute difference of the given tensors
-    template<typename T>
-    Tensor<T> abs_dif(const Tensor<T>& input1, const Tensor<T>& input2);
-
     // Square root of the given tensor
     template<typename T>
     Tensor<T> sqrt(const Tensor<T>& input);
@@ -28,6 +24,10 @@ namespace cmind{
     // Power of the given tensor
     template<typename T>
     Tensor<T> power(const Tensor<T>& input1, const int degree);
+
+    // Matrix multiplication
+    template<typename T>
+    Tensor<T> mat_mul(const Tensor<T>& input1, const Tensor<T>& input2);
 
 }
 

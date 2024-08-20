@@ -29,8 +29,7 @@ namespace cmind{
 
     // Destructor
     Loss::~Loss(){
-        if(this->inputs != nullptr)
-            delete this->inputs;
+        
     }
 
 
@@ -68,10 +67,15 @@ namespace cmind{
             abort();
         }        
         size_t batch_size = pred.shape()[0];
-        Tensor<float> grads({this->weight_count});
+        size_t count = 0;
+        if(this->alg_type == Algorithms::LinearRegression)
+            count = this->weight_count+1;
+        else
+            count = this->weight_count;
+        Tensor<float> grads({count});
         grads.fill(0.0);
-        size_t count = this->weight_count;
-        if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
+
+        if(this->alg_type == Algorithms::LinearRegression)
             count--;
 
         // Calculate gradients
@@ -104,7 +108,7 @@ namespace cmind{
         }
         Tensor<float> loss({1});
         loss.fill(0.0);
-        loss[0] = abs_dif(pred, target).mean();
+        loss[0] = abs(pred - target).mean();
         return loss;
     }
 
@@ -119,9 +123,13 @@ namespace cmind{
             abort();
         }
         size_t batch_size = pred.shape()[0];
-        Tensor<float> grads({this->weight_count});
+        size_t count = 0;
+        if(this->alg_type == Algorithms::LinearRegression)
+            count = this->weight_count+1;
+        else
+            count = this->weight_count;
+        Tensor<float> grads({count});
         grads.fill(0.0);
-        size_t count = this->weight_count;
         if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
             count--;
 
@@ -169,7 +177,7 @@ namespace cmind{
         Tensor<float> diff({1});
 
         for(size_t i=0; i<pred.shape()[0]; i++){
-            diff = abs_dif(pred[i], target[i]);
+            diff = abs(pred[i] - target[i]);
             if(diff <= this->delta[0])
                 loss[0] += diff*diff/2.0;
             else
@@ -189,9 +197,13 @@ namespace cmind{
             abort();
         }
         size_t batch_size = pred.shape()[0];
-        Tensor<float> grads({this->weight_count});
+        size_t count = 0;
+        if(this->alg_type == Algorithms::LinearRegression)
+            count = this->weight_count+1;
+        else
+            count = this->weight_count;
+        Tensor<float> grads({count});
         grads.fill(0.0);
-        size_t count = this->weight_count;
         if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
             count--;
 
@@ -199,7 +211,7 @@ namespace cmind{
 
         // Calculate gradients  
         for(size_t i=0; i<batch_size; i++){
-            diff = abs_dif(pred[i], target[i]);
+            diff = abs(pred[i] - target[i]);
             if(diff <= this->delta[0]){
                 for(size_t j=0; j<count; j++)
                     grads[j] += (pred[i]-target[i])*(*this->inputs)[i][j]/batch_size;
@@ -260,7 +272,8 @@ namespace cmind{
         penalty.fill(0.0);
         for(size_t i=0; i<this->weight_count; i++)
             penalty += power((*this->weights)[i], 2);
-        penalty *= this->alpha[0]/(this->weight_count*2.0);
+        penalty += power((*this->bias)[0], 2);
+        penalty *= this->alpha[0]/((this->weight_count+1)*2.0);
         return loss+penalty;
     }
 
@@ -276,27 +289,30 @@ namespace cmind{
             abort();
         }        
         size_t batch_size = pred.shape()[0];
-        Tensor<float> grads({this->weight_count});
+        size_t count = 0;
+        if(this->alg_type == Algorithms::LinearRegression)
+            count = this->weight_count+1;
+        else
+            count = this->weight_count;
+        Tensor<float> grads({count});
         grads.fill(0.0);
-        size_t count = this->weight_count;
-        if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
-            count--;
 
         // Calculate gradients
         for(size_t i=0; i<batch_size; i++){
-            for(size_t j=0; j<count; j++)
-                grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->weights)[j]*this->alpha[0]/this->weight_count);
+            for(size_t j=0; j<this->weight_count; j++)
+                grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->weights)[j]*this->alpha[0]/(this->weight_count+1));
             
-            if(this->alg_type == Algorithms::LinearRegression)
-                grads[count] += ((pred[i]-target[i])/batch_size + (*this->weights)[count]*this->alpha[0]/this->weight_count);
+            if(this->bias != nullptr)
+                grads[this->weight_count] += ((pred[i]-target[i])/batch_size + (*this->bias)[0]*this->alpha[0]/(this->weight_count+1));
         }
         
         return grads;
     }
 
     // Set the weights
-    void RidgeLoss::set_weights(Tensor<float>* weights){
+    void RidgeLoss::set_weights(Tensor<float>* weights, Tensor<float>* bias){
         this->weights = weights;
+        this->bias = bias;
     }
 
     // Destructor
@@ -331,7 +347,8 @@ namespace cmind{
         penalty.fill(0.0);
         for(size_t i=0; i<this->weight_count; i++)
             penalty += abs((*this->weights)[i]);
-        penalty *= this->alpha[0]/(this->weight_count*2.0);
+        penalty += abs((*this->bias)[0]);
+        penalty *= this->alpha[0]/((this->weight_count+1)*2.0);
         return loss+penalty;
     }
 
@@ -347,26 +364,23 @@ namespace cmind{
             abort();
         }        
         size_t batch_size = pred.shape()[0];
-        Tensor<float> grads({this->weight_count});
+        Tensor<float> grads({this->weight_count+1});
         grads.fill(0.0);
-        size_t count = this->weight_count;
-        if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
-            count--;
 
         // Calculate gradients
         for(size_t i=0; i<batch_size; i++){
-            for(size_t j=0; j<count; j++){
+            for(size_t j=0; j<this->weight_count; j++){
                 if((*this->weights)[j] < 0)
-                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/(batch_size*2.0) - (*this->alpha)/(this->weight_count*2.0));
+                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/(batch_size*2.0) - (*this->alpha)/((this->weight_count+1)*2.0));
                 else
-                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/(batch_size*2.0) + (*this->alpha)/(this->weight_count*2.0));
+                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/(batch_size*2.0) + (*this->alpha)/((this->weight_count+1)*2.0));
             }
             
-            if(this->alg_type == Algorithms::LinearRegression){
-                if((*this->weights)[count] < 0)
-                    grads[count] += (pred[i]-target[i])/(batch_size*2.0) - (*this->alpha)/(this->weight_count*2.0);
+            if(this->bias != nullptr){
+                if((*this->bias)[0] < 0)
+                    grads[this->weight_count] += (pred[i]-target[i])/(batch_size*2.0) - (*this->alpha)/((this->weight_count+1)*2.0);
                 else
-                    grads[count] += (pred[i]-target[i])/(batch_size*2.0) + (*this->alpha)/(this->weight_count*2.0);
+                    grads[this->weight_count] += (pred[i]-target[i])/(batch_size*2.0) + (*this->alpha)/((this->weight_count+1)*2.0);
             }
 
         }
@@ -375,8 +389,9 @@ namespace cmind{
     }
 
     // Set the weights
-    void LassoLoss::set_weights(Tensor<float>* weights){
+    void LassoLoss::set_weights(Tensor<float>* weights, Tensor<float>* bias){
         this->weights = weights;
+        this->bias = bias;
     }
 
     // Destructor
@@ -414,8 +429,8 @@ namespace cmind{
         penalty.fill(0.0);
         for(size_t i=0; i<this->weight_count; i++)
             penalty += (*this->l1_ratio * abs((*this->weights)[i]) + (-(*this->l1_ratio)+1) * power((*this->weights)[i], 2)/2.0);
+        penalty += (*this->l1_ratio * abs((*this->bias)[0]) + (-(*this->l1_ratio)+1) * power((*this->bias)[0], 2)/2.0);
         penalty *= this->alpha[0]/this->weight_count;
-        std::cout << std::endl << "Penalty: " << penalty << std::endl;
         return loss+penalty;
     }
 
@@ -431,26 +446,23 @@ namespace cmind{
             abort();
         }        
         size_t batch_size = pred.shape()[0];
-        Tensor<float> grads({this->weight_count});
-        grads.fill(0.0);
-        size_t count = this->weight_count;
-        if(this->alg_type == Algorithms::LinearRegression)      // Decrement for the bias
-            count--;
+        Tensor<float> grads({this->weight_count+1});
+        grads.fill(0.0);        
 
         // Calculate gradients
         for(size_t i=0; i<batch_size; i++){
-            for(size_t j=0; j<count; j++){
+            for(size_t j=0; j<this->weight_count; j++){
                 if((*this->weights)[j] < 0)
-                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->alpha/(this->weight_count*2.0))*(*this->alpha*(-1) + (-*this->alpha+1)*(*this->weights)[j]));
+                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->alpha/((this->weight_count+1)*2.0))*(*this->alpha*(-1) + (-*this->alpha+1)*(*this->weights)[j]));
                 else
-                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->alpha/(this->weight_count*2.0))*(*this->alpha*1 + (-*this->alpha+1)*(*this->weights)[j]));
+                    grads[j] += ((pred[i]-target[i])*(*this->inputs)[i][j]/batch_size + (*this->alpha/((this->weight_count+1)*2.0))*(*this->alpha*1 + (-*this->alpha+1)*(*this->weights)[j]));
             }
             
-            if(this->alg_type == Algorithms::LinearRegression){
-                if((*this->weights)[count] < 0)
-                    grads[count] += ((pred[i]-target[i])/batch_size + (*this->alpha/(this->weight_count*2.0))*(*this->alpha*(-1) + (-*this->alpha+1)*(*this->weights)[count]));
+            if(this->bias != nullptr){
+                if((*this->bias)[0] < 0)
+                    grads[this->weight_count] += ((pred[i]-target[i])/batch_size + (*this->alpha/((this->weight_count+1)*2.0))*(*this->alpha*(-1) + (-*this->alpha+1)*(*this->bias)[0]));
                 else
-                    grads[count] += ((pred[i]-target[i])/batch_size + (*this->alpha/(this->weight_count*2.0))*(*this->alpha*1 + (-*this->alpha+1)*(*this->weights)[count]));
+                    grads[this->weight_count] += ((pred[i]-target[i])/batch_size + (*this->alpha/((this->weight_count+1)*2.0))*(*this->alpha*1 + (-*this->alpha+1)*(*this->bias)[0]));
             }
         }
         
@@ -458,8 +470,9 @@ namespace cmind{
     }
 
     // Set the weights
-    void ElasticNetLoss::set_weights(Tensor<float>* weights){
+    void ElasticNetLoss::set_weights(Tensor<float>* weights, Tensor<float>* bias){
         this->weights = weights;
+        this->bias = bias;
     }
 
     // Destructor

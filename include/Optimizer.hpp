@@ -15,7 +15,7 @@ namespace cmind{
             virtual void optimize(const Tensor<float>& grads)const = 0;
 
             // Set the weights
-            virtual void set_weights(Tensor<float>* weights)=0;
+            virtual void set_weights(Tensor<float>* weights, Tensor<float>* bias)=0;
         
         protected:
             // Type of the optimizer
@@ -25,7 +25,10 @@ namespace cmind{
             Tensor<float> lr;
 
             // Weights
-            Tensor<float>* weights;
+            Tensor<float>* weights = nullptr;
+
+            // Bias
+            Tensor<float>* bias = nullptr;
     };
 
     // Stochastic Gradient Descent(SGD) Optimizer
@@ -33,7 +36,7 @@ namespace cmind{
         public:
             SGD(const float lr);
 
-            void set_weights(Tensor<float>* weights) override;
+            void set_weights(Tensor<float>* weights, Tensor<float>* bias = nullptr) override;
 
             void optimize(const Tensor<float>& grads)const override;
     };
@@ -45,7 +48,7 @@ namespace cmind{
 
             void optimize(const Tensor<float>& grads)const override;
 
-            void set_weights(Tensor<float>* weights) override;
+            void set_weights(Tensor<float>* weights, Tensor<float>* bias = nullptr) override;
 
             ~SGDMomentum();
 
@@ -59,7 +62,7 @@ namespace cmind{
         public:
             AdaGrad(const float lr);
 
-            void set_weights(Tensor<float>* weights) override;
+            void set_weights(Tensor<float>* weights, Tensor<float>* bias = nullptr) override;
         
             void optimize(const Tensor<float>& grads)const override;
 
@@ -73,7 +76,7 @@ namespace cmind{
         public:
             RMSProp(const float lr, const float beta);
 
-            void set_weights(Tensor<float>* weights) override;
+            void set_weights(Tensor<float>* weights, Tensor<float>* bias = nullptr) override;
 
             void optimize(const Tensor<float>& grads)const override;
 
@@ -88,7 +91,7 @@ namespace cmind{
         public:
             Adam(const float lr, const float beta1, const float beta2);
 
-            void set_weights(Tensor<float>* weights) override;
+            void set_weights(Tensor<float>* weights, Tensor<float>* bias = nullptr) override;
 
             void optimize(const Tensor<float>& grads)const override;
 

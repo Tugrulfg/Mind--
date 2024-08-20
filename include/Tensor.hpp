@@ -127,7 +127,7 @@ namespace cmind{
         private:
 
             T* data_;
-            const bool copied; // Checks if the tensor is a copy or original
+            bool copied; // Checks if the tensor is a copy or original
             size_t size_; // Total number of the elements in the tensor
             size_t step = 1; // Step size distance between each index
             Shape shape_;

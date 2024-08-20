@@ -1,4 +1,4 @@
-- ML Algorithms: Matrix multiplication
+- ML Algorithms: Logistic Regression
 
 - Accuracy
 

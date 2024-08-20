@@ -48,7 +48,7 @@ namespace cmind{
                                 throw std::exception();
                         }
                         catch(const std::exception& e){
-                            if(data[i] == "true" || data[i] == "false")
+                            if(data[i] == "true" || data[i] == "false" || data[i] == "True" || data[i] == "False")
                                 this->column_types.push_back(dtype::BOOL);
                             else
                                 this->column_types.push_back(dtype::STR);   
@@ -57,6 +57,7 @@ namespace cmind{
                 }
             }
         }
+        file.close();
 
         for(dtype type: this->column_types){
             if(type == dtype::BOOL)
@@ -68,7 +69,7 @@ namespace cmind{
             else if(type == dtype::STR)
                 this->columns.push_back(new Tensor<std::string>({this->num_row}));
         }
-        file.close();
+        
         file = std::ifstream(path);
         if(this->with_header)
             std::getline(file, line);
@@ -79,7 +80,7 @@ namespace cmind{
 
             for(size_t i=0; i<this->num_column; i++){
                 if(this->column_types[i] == dtype::BOOL){
-                    if(data[i] == "true")
+                    if(data[i] == "true" || data[i] == "True")
                         ((Tensor<bool>*)(this->columns[i]))[0][j] = true;
                     else
                         ((Tensor<bool>*)(this->columns[i]))[0][j] = false;

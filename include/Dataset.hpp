@@ -53,13 +53,10 @@ namespace cmind{
             static std::unordered_map<std::string, float> string_to_float(const void* data, const size_t size);
 
             // Convert tensor to float
-            static Tensor<float> to_float(void* data, dtype type, size_t size);
+            static Tensor<float> to_float(const void* data, dtype type, size_t size);
 
-            std::vector<std::string> headers;
-            // std::vector<Tensor<float>*> source_data;
             std::vector<Tensor<float>*> data_batches;
             std::vector<Tensor<float>*> target_batches;
-            std::string target_header;
             Shape shape_;
             const size_t batch_size_;
             std::vector<size_t> string_cols;

@@ -6,10 +6,47 @@
 using namespace cmind;
 
 int main() {
-    // std::vector<double> input = {2.0, 3.0};  // Example input
+    // std::cout << "------------------------------- Matrix Multiplication Testing -------------------------------" << std::endl;
+    
+    // Tensor<float> in1({3,3});
+    // Tensor<float> in2({3,3});
+
+    // in1[0][0] = 1;
+    // in1[0][1] = 2;
+    // in1[0][2] = 3;
+    // in1[1][0] = 1;
+    // in1[1][1] = 2;
+    // in1[1][2] = 1;
+    // in1[2][0] = 3;
+    // in1[2][1] = 1;
+    // in1[2][2] = 2;
+
+    // in2[0][0] = 1;
+    // in2[0][1] = 2;
+    // in2[0][2] = 3;
+    // in2[1][0] = 1;
+    // in2[1][1] = 2;
+    // in2[1][2] = 1;
+    // in2[2][0] = 3;
+    // in2[2][1] = 1;
+    // in2[2][2] = 2;
+
+    // Tensor<float> out({3,3});
+    // out.fill(1.0);
+    // auto start = std::chrono::high_resolution_clock::now();
+
+    // out += mat_mul(in1, in2);
+    // auto end = std::chrono::high_resolution_clock::now();
+    // auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count();
+    // std::cout << time << std::endl;
+
+    // std::cout << out << std::endl;
+    // abort();
+
+    // std::vector<float> input = {2.0, 3.0};  // Example input
     // int degree = 2;
     
-    // std::vector<std::vector<double>> polyFeatures = createPolynomialFeatures(input, degree);
+    // std::vector<std::vector<float>> polyFeatures = createPolynomialFeatures(input, degree);
     
     // // Display the polynomial features
     // for (const auto& feature : polyFeatures) {
@@ -134,15 +171,16 @@ int main() {
     // std::cout << dataset << std::endl;
     // abort();
 
-    CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Income.csv", true);
-    Dataset dataset(csv, 2, {}, 4, false);
+    // CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Income.csv", true);
+    // Dataset dataset(csv, 2, {}, 4, false);
 
     // CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Iris.csv", true);
     // Dataset dataset(csv, 4, {0}, 4, false);
 
-    // std::cout << dataset << std::endl;
+    CSVReader csv("/home/tugrul/Desktop/Mind++/Examples/res/Student.csv", true);
+    Dataset dataset(csv, 5, {}, 4, true);
 
-    Transforms transforms(false, 3);
+    Transforms transforms(true, 1);
     transforms.fit_transform(dataset);
 
     // std::cout << dataset << std::endl;
@@ -151,25 +189,29 @@ int main() {
     MAE mae;
     MSE mse;
     HuberLoss huber(50000.0);
-    RidgeLoss ridge(1.0);
-    LassoLoss lasso(1.0);
-    ElasticNetLoss elastic_net(1.0, 0.5);
+    RidgeLoss ridge(0.1);
+    LassoLoss lasso(0.1);
+    ElasticNetLoss elastic_net(0.1, 0.5);
 
     SGDMomentum sgdm(0.001, 0.9);
     SGD sgd(0.001);
     AdaGrad adagrad(0.1);
     RMSProp rmsprop(0.001, 0.9);
-    Adam adam(0.1, 0.9, 0.999);
+    Adam adam(0.01, 0.9, 0.999);
     
     LinearRegression lin_reg(dataset.shape()[1]);
-    // lin_reg.load("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
+    // lin_reg.load("/home/tugrul/Desktop/Mind++/Examples/Weights/Student.txt");
+    
+    lin_reg.compile(elastic_net, adam);
+    lin_reg.train(dataset, 10);
 
-    lin_reg.train(dataset, 4000, elastic_net, adam);
+    // lin_reg.save("/home/tugrul/Desktop/Mind++/Examples/Weights/Student.txt");
 
-    // lin_reg.save("/home/tugrul/Desktop/Mind++/Examples/Weights/LinearRegression.txt");
-
-    std::vector<double> input = {29.0, 1.0};  // Example input
-    std::cout << "Pred 11.0: " << lin_reg.predict(transforms(input)) << std::endl;
+    std::vector<float> input = {9, 97, 1, 7, 0};  // Example input
+    std::vector<float> transformed = transforms(input);
+    for(auto i: transformed)
+        std::cout << i << " ";
+    std::cout << "-> " << lin_reg.predict(transformed) << std::endl;
     // std::cout << "Pred 12.0: " << lin_reg.predict({12.}) << std::endl;
     // std::cout << "Pred 13.0: " << lin_reg.predict({13.}) << std::endl;
     // std::cout << "Pred 14.0: " << lin_reg.predict({14.}) << std::endl;
@@ -179,7 +221,7 @@ int main() {
     // std::cout << "Pred 18.0: " << lin_reg.predict({18.}) << std::endl;
 
 
-    std::cout << "Weights: " << *lin_reg.weights() << std::endl;
+    // std::cout << "Weights: " << lin_reg.weights()->flatten() << std::endl;
     std::cout << "Destructor Calls" << std::endl;
 
     return 0;

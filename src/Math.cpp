@@ -4,7 +4,6 @@
 #include "../include/Math.hpp"
 #include <cmath>
 
-
 namespace cmind{
 
     // Return the absolute value of the tensor
@@ -18,25 +17,6 @@ namespace cmind{
                 output[i] = -in[i];
             else
                 output[i] = in[i];
-        }
-        return output;
-    }
-    
-    // Return the absolute difference of the given tensors
-    template<typename T>
-    Tensor<T> abs_dif(const Tensor<T>& input1, const Tensor<T>& input2){
-        if(input1.shape() != input2.shape()){
-            std::cout << "abs_dif: Shapes do not match" << std::endl;
-            abort();
-        }
-        Tensor<T> output(input1.shape());
-        const T* in1 = input1.data();
-        const T* in2 = input2.data();
-        for(size_t i=0; i<input1.size(); i++){
-            if(in1[i] < in2[i])
-                output[i] = in2[i]-in1[i];
-            else
-                output[i] = in1[i]-in2[i];
         }
         return output;
     }
@@ -106,6 +86,25 @@ namespace cmind{
         return output;
     }
 
+    // Matrix multiplication
+    template<typename T>
+    Tensor<T> mat_mul(const Tensor<T>& input1, const Tensor<T>& input2){
+        if(input1.shape()[1] != input2.shape()[0] || input1.shape().size() != 2 || input2.shape().size() != 2){
+            std::cout << "mat_mul: Shapes do not match" << std::endl;
+            abort();
+        }
+
+        Tensor<T> output({input1.shape()[0], input2.shape()[1]});
+        output.fill(0.0);
+
+        for(size_t i=0; i<input1.shape()[0]; i++){
+            for(size_t j=0; j<input2.shape()[1]; j++){
+                for(size_t k=0; k<input1.shape()[1]; k++)
+                    output[i][j] += input1[i][k]*input2[k][j];
+            }
+        }
+        return output;
+    }
 
 
 }

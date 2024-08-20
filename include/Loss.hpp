@@ -81,12 +81,13 @@ namespace cmind{
             const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
 
             // Set the weights
-            void set_weights(Tensor<float>* weights);
+            void set_weights(Tensor<float>* weights, Tensor<float>* bias);
 
             ~RidgeLoss();
         private:
             Tensor<float>* alpha = nullptr; 
             Tensor<float>* weights = nullptr;
+            Tensor<float>* bias = nullptr;
     };
 
     // Lasso Loss (L1) implementation
@@ -97,13 +98,14 @@ namespace cmind{
             const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
 
             // Set the weights
-            void set_weights(Tensor<float>* weights);
+            void set_weights(Tensor<float>* weights, Tensor<float>* bias);
 
             ~LassoLoss();
 
         private:
             Tensor<float>* alpha = nullptr; 
             Tensor<float>* weights = nullptr;
+            Tensor<float>* bias = nullptr;
     };
 
     // ElasticNet Loss implementation
@@ -114,7 +116,7 @@ namespace cmind{
             const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
 
             // Set the weights
-            void set_weights(Tensor<float>* weights);
+            void set_weights(Tensor<float>* weights, Tensor<float>* bias);
 
             ~ElasticNetLoss();
 
@@ -122,6 +124,7 @@ namespace cmind{
             Tensor<float>* alpha = nullptr; 
             Tensor<float>* l1_ratio = nullptr;
             Tensor<float>* weights = nullptr;
+            Tensor<float>* bias = nullptr;
     };
 }
 
