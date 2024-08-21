@@ -19,6 +19,18 @@ namespace cmind{
 
     // Set the algorithm type
     void Loss::set_alg_type(const Algorithms alg_type){
+        if(alg_type == Algorithms::LinearRegression){
+            if(this->loss_type != Losses::MSE && this->loss_type != Losses::MAE && this->loss_type != Losses::HuberLoss && this->loss_type != Losses::RidgeLoss && this->loss_type != Losses::LassoLoss && this->loss_type != Losses::ElasticNetLoss){
+                std::cout << "Loss: Not supported algorithm type" << std::endl;
+                abort();
+            }
+        }
+        else if(alg_type == Algorithms::BinaryLogisticRegression){
+            if(this->loss_type != Losses::BCE){
+                std::cout << "Loss: Not supported algorithm type" << std::endl;
+                abort();
+            }
+        }
         this->alg_type = alg_type;
     }
 
@@ -481,6 +493,64 @@ namespace cmind{
             delete this->alpha;
         if(this->l1_ratio != nullptr)
             delete this->l1_ratio;
+    }
+
+
+    // BCE constructor
+    BCE::BCE(): Loss(Losses::BCE){
+
+    }
+
+    // Calculates the loss value according to the given pred and target
+    const Tensor<float> BCE::compute(const Tensor<float>& pred, const Tensor<float>& target)const{
+        if(pred.shape() != target.shape()){
+            std::cout << "BCE Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "BCE Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }
+        Tensor<float> loss({1});
+        loss.fill(0.0);
+        for(size_t i=0; i<pred.shape()[0]; i++)
+            loss += target[i]*log(pred[i]) + (1.0f-target[i])*log(1.0f-pred[i]);
+        return -loss/pred.shape()[0];
+    }
+
+    // Calculates the gradients of the variables
+    const Tensor<float> BCE::gradient(const Tensor<float>& pred, const Tensor<float>& target)const{
+        // std::cout << "Pred: " << pred.shape() << "Target: " << target.shape() << "Weights: " << this->weight_count << "Inputs: " << this->inputs->shape() << std::endl;
+        if(pred.shape() != target.shape()){
+            std::cout << "BCE Loss: Shapes do not match" << std::endl;
+            abort();
+        }
+        else if(pred.shape().size() != 1){
+            std::cout << "BCE Loss: Invalid shape: " << pred.shape() << std::endl;
+            abort();
+        }        
+        size_t batch_size = pred.shape()[0];
+        size_t count = 0;
+        if(this->alg_type == Algorithms::BinaryLogisticRegression)
+            count = this->weight_count+1;
+        else
+            count = this->weight_count;
+        Tensor<float> grads({count});
+        grads.fill(0.0);
+
+        if(this->alg_type == Algorithms::BinaryLogisticRegression)
+            count--;
+
+        // Calculate gradients
+        for(size_t i=0; i<batch_size; i++){
+            for(size_t j=0; j<count; j++)
+                grads[j] += (pred[i]-target[i])*(*this->inputs)[i][j]/batch_size;
+            
+            if(this->alg_type == Algorithms::BinaryLogisticRegression)
+                grads[count] += (pred[i]-target[i])/batch_size;
+        }
+        
+        return grads;
     }
 
 }

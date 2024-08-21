@@ -1,5 +1,5 @@
-#ifndef C_PLUS_PLUS_MIND_HPP
-#define C_PLUS_PLUS_MIND_HPP
+#ifndef MIND_PLUS_PLUS_HPP
+#define MIND_PLUS_PLUS_HPP
 
 namespace cmind{
     // Enum type for data types
@@ -12,7 +12,8 @@ namespace cmind{
 
     // Enum type for machine learning algorithms
     enum class Algorithms{
-        LinearRegression
+        LinearRegression,
+        BinaryLogisticRegression
     }; 
 
     // Enum type for optimizers
@@ -31,7 +32,9 @@ namespace cmind{
         HuberLoss,
         RidgeLoss,
         LassoLoss,
-        ElasticNetLoss
+        ElasticNetLoss,
+        BCE,
+
     };
 }
 

@@ -106,6 +106,27 @@ namespace cmind{
         return output;
     }
 
+    // Logarithm of the given tensor
+    template<typename T>
+    Tensor<T> log(const Tensor<T>& input){
+        Tensor<T> output(input.shape());
+        const T* in = input.data();
+        T* out = output.data(); 
+        for(size_t i=0; i<input.size(); i++)
+            out[i] = std::log(in[i]);
+        return output;
+    }
+
+    // Exponential of the given tensor
+    template<typename T>
+    Tensor<T> exp(const Tensor<T>& input){
+        Tensor<T> output(input.shape());
+        const T* in = input.data();
+        T* out = output.data(); 
+        for(size_t i=0; i<input.size(); i++)
+            out[i] = std::exp(in[i]);
+        return output;
+    }
 
 }
 

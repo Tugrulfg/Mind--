@@ -126,6 +126,14 @@ namespace cmind{
             Tensor<float>* weights = nullptr;
             Tensor<float>* bias = nullptr;
     };
+
+    // Binary Cross Entropy Loss implementation
+    class BCE: public Loss{
+        public:
+            BCE();
+            const Tensor<float> compute(const Tensor<float>& pred, const Tensor<float>& target)const override;
+            const Tensor<float> gradient(const Tensor<float>& pred, const Tensor<float>& target)const override;
+    };
 }
 
 #endif

@@ -42,6 +42,9 @@ namespace cmind{
             // Returns the data pointer
             const T* data()const;
 
+            // Returns the modifiable data pointer
+            T* data();
+
             // Returns the first value store
             T first()const;
 
@@ -142,6 +145,9 @@ namespace cmind{
 
     template<typename T>
     Tensor<T> operator*(T val, const Tensor<T>& tensor);
+
+    template<typename T>
+    Tensor<T> operator/(T val, const Tensor<T>& tensor);
 }
 // Template class member function definitions
 #include "../src/Tensor.cpp"

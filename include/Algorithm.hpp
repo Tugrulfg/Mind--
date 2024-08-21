@@ -49,7 +49,7 @@ namespace cmind{
     // Linear regression algorithm implementation
     class LinearRegression: public Algorithm{
         public:
-            LinearRegression(const size_t input_count);
+            LinearRegression();
 
             // Load model from file
             LinearRegression(const std::string& filepath);
@@ -77,6 +77,39 @@ namespace cmind{
             Loss* loss_func_ = nullptr;
             Optimizer* opt_ = nullptr;
     };
+
+    // Logistic regression algorithm implementation for binary classification
+    class BinaryLogisticRegression: public Algorithm{
+        public:
+            BinaryLogisticRegression();
+
+            // Load model from file
+            BinaryLogisticRegression(const std::string& filepath);
+
+            // Returns the bias
+            const Tensor<float>* bias()const;
+
+            const Tensor<float> operator()(const Tensor<float>& input)const override;
+
+            void compile(Loss& loss_func, Optimizer& opt) override;
+
+            void train(Dataset& ds, const size_t epochs) override;
+
+            const Tensor<float> predict(const std::vector<float> input)const override;
+
+            void save(const std::string& filepath)const override;
+
+            void load(const std::string& filepath)override;
+
+            // Destructor
+            ~BinaryLogisticRegression();
+
+        private:
+            Tensor<float>* bias_ = nullptr;
+            Loss* loss_func_ = nullptr;
+            Optimizer* opt_ = nullptr;
+    };
+
 }
 
 

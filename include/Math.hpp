@@ -29,6 +29,14 @@ namespace cmind{
     template<typename T>
     Tensor<T> mat_mul(const Tensor<T>& input1, const Tensor<T>& input2);
 
+    // Logarithm of the given tensor
+    template<typename T>
+    Tensor<T> log(const Tensor<T>& input);
+
+    // Exponential of the given tensor
+    template<typename T>
+    Tensor<T> exp(const Tensor<T>& input);
+
 }
 
 #include "../src/Math.cpp"

@@ -86,6 +86,12 @@ namespace cmind{
         return this->data_;
     }
 
+    // Returns the modifiable data pointer
+    template<typename T>
+    T* Tensor<T>::data(){
+        return this->data_;
+    }
+
     // Returns the first value store
     template<typename T>
     T Tensor<T>::first()const{
@@ -623,6 +629,17 @@ namespace cmind{
     template<typename T>
     Tensor<T> operator*(T val, const Tensor<T>& tensor){
         return tensor * val;
+    }
+
+    template<typename T>
+    Tensor<T> operator/(T val, const Tensor<T>& tensor){
+        Tensor<T> temp(tensor.shape());
+        T* out = temp.data();
+        const T* in = tensor.data();
+        for(size_t i=0; i<tensor.size(); i++)
+            out[i] = val/in[i];
+
+        return temp; 
     }
 }
 #endif

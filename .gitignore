@@ -1,4 +1,5 @@
 lib/
 obj/
-res/
 Examples/*.o
+Examples/Weights/*.txt
+TODO.txt
