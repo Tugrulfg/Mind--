@@ -3,3 +3,4 @@ obj/
 Examples/*.o
 Examples/Weights/*.txt
 TODO.txt
+.vscode/

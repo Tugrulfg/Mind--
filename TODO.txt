@@ -1,5 +1,0 @@
-- ML Algorithms: Logistic Regression
-
-- Accuracy
-
-- Loss functions
