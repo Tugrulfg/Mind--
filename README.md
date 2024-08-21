@@ -2,7 +2,7 @@
 
 I am trying to implement the functionalities of a ml library from scratch only using C++ standard libraries. Currently library can read data from .csv files only.
 
-Implemented Features:
+### Implemented features
   * Polynomial Features
   * SGD, SGD with momentum, AdaGrad, RMSProp, Adam optimizers
   * Linear Regression
